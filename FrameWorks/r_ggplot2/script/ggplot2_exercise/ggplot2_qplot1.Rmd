@@ -1,0 +1,444 @@
+---
+title: "ggplot2"
+author: "Zhefeng Wang"
+date: "August 19, 2015"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Visualizing Data**
+
+## Discover the unexpected in your data with `ggplot2`
+
+## **Summarise**
+
+1. Scatterplots
+
+   + a.Aesthetics, Facets, Geoms
+   
+2. Bar charts
+
+   + b.Positions
+   
+3. Histograms
+   
+   + c.Parameters
+   
+4. Visualizing big data
+
+5. Saving Graphs
+
+## **0.Simple examples**
+
+```
+install.packages("ggplot2")
+```
+
+```{r}
+library(ggplot2)
+```
+
+### (1)Data: `iris`
+
+```{r}
+data(iris)
+head(iris)
+```
+
+### (2)Plots
+
+```{r}
+p1 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length))
+p1 +
+    geom_point()
+```
+
+```{r}
+p2 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species, shape = Species))
+p2 + 
+    geom_point()
+```
+
+```{r}
+p3 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species, shape = Species)) 
+p3 + 
+    geom_point() +
+    theme_bw()
+```
+
+```{r}
+p4 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species, shape = Species)) 
+p4 + 
+    geom_point() +
+    theme_bw() +
+    geom_smooth(method = lm, se = FALSE)
+```
+
+```{r}
+p5 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length))
+p5 +
+  geom_rug(aes(color = Species), position = 'jitter') +
+  stat_density2d(aes(alpha = ..level.., fill = Species), geom = "polygon") + 
+  theme_bw()
+```
+
+```{r}
+p6 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length))
+p6 +
+  geom_rug(aes(color = Species), position = 'jitter') +
+  stat_density2d(aes(alpha = ..level.., fill = Species), geom = "polygon") +
+  theme_bw() +
+  facet_wrap(~ Species)
+```
+
+```{r}
+p7 = ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Sepal.Length))
+p7 +
+  geom_rug(aes(color = Species), position = 'jitter') +
+  stat_density2d(aes(alpha = ..level.., fill = Species), geom = "polygon") +
+  theme_bw() +
+  facet_grid(.~ Species)
+```
+
+
+
+# **1. qplot() (quick plots in R)**
+
+## **1. Scatterplots** 
+
+### Data: `mpg`
+
+```{r}
+head(mpg)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg)
+```
+
+### Aesthetics
+
+```{r}
+qplot(displ, hwy, data = mpg, color = class)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg, size = class)
+```
+
+```{r, warning=FALSE}
+qplot(displ, hwy, data = mpg, shape = class)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg, alpha = class)
+```
+
+### Faceting
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    facet_grid(.~ cyl)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    facet_grid(drv ~.)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    facet_grid(drv ~ cyl)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    facet_wrap(~ class)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    facet_grid(~ class)
+```
+
+### Geoms
+
+```{r}
+qplot(displ, hwy, data = mpg)
+```
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = "point")
+```
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = "smooth")
+```
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth"))
+```
+
+```{r}
+qplot(displ, hwy, data = mpg) + 
+    geom_smooth()
+```
+
+```{r}
+qplot(class, hwy, data = mpg)
+```
+
+```{r}
+qplot(class, hwy, data = mpg, geom = "boxplot")
+```
+
+```{r}
+qplot(reorder(class, hwy), hwy, data = mpg, geom = "boxplot")
+```
+
+```{r}
+qplot(reorder(class, hwy, FUN = median), hwy, data = mpg, geom = "boxplot")
+```
+
+
+
+## **2. Bar charts**
+
+### **Default geoms for qplot**
+* __Two variables → scatterplot (point)__
+* __One continuous variable → histogram__
+* __One categorical variable → bar chart__
+
+```{r}
+qplot(x, z, data = diamonds)
+```
+
+```{r}
+qplot(x, data = diamonds)
+```
+
+```{r}
+qplot(cut, data = diamonds)
+```
+
+
+
+### Fill
+
+```{r}
+qplot(cut, data = diamonds, geom = "bar", fill = cut)
+```
+
+```{r}
+qplot(cut, data = diamonds, geom = "bar", color = cut)
+```
+
+### Position adjustments
+
+```{r}
+qplot(color, data = diamonds, geom = "bar", fill = cut)
+```
+
+```{r}
+qplot(color, data = diamonds, geom = "bar", fill = cut, position = "stack")
+```
+
+```{r}
+qplot(color, data = diamonds, geom = "bar", fill = cut, position = "dodge")
+```
+
+```{r}
+qplot(color, data = diamonds, geom = "bar", fill = cut, position = "identity")
+```
+
+```{r}
+qplot(color, data = diamonds, geom = "bar", fill = cut, position = "fill")
+```
+
+
+```{r}
+qplot(cty, hwy, data = mpg)
+```
+
+```{r}
+qplot(cty, hwy, data = mpg, position = "jitter")
+```
+
+```{r}
+qplot(cty, hwy, data = mpg, geom = "jitter")
+```
+
+```{r}
+qplot(cty, hwy, data = mpg, geom = "point", position = "jitter")
+qplot(cty, hwy, data = mpg, geom = "jitter")
+```
+
+
+## **3. Histograms**
+
+```{r}
+qplot(displ, data = mpg)
+```
+
+
+```{r}
+qplot(displ, data = mpg, binwidth = 1)
+```
+
+```{r}
+qplot(carat, data = diamonds, binwidth = 1)
+```
+
+```{r}
+qplot(carat, data = diamonds, binwidth = 0.1)
+```
+
+```{r}
+qplot(carat, data = diamonds, binwidth = 0.01)
+```
+
+
+```{r}
+zoom = coord_cartesian(xlim = c(55, 70))
+```
+
+```{r}
+qplot(depth, data = diamonds, binwidth = 0.2) +
+    zoom
+```
+
+```{r}
+qplot(depth, data = diamonds, binwidth = 0.2, fill = cut) + 
+    zoom
+```
+
+```{r}
+qplot(depth, data = diamonds, binwidth = 0.2) +
+    zoom + 
+    facet_wrap(~ cut)
+```
+
+```{r}
+qplot(depth, data = diamonds, binwidth = 0.2, geom = "freqpoly", color = cut) +
+    zoom +
+    facet_wrap(~ cut)
+```
+
+```{r}
+qplot(depth, data = diamonds, binwidth = 0.2, geom = "freqpoly", color = cut) +
+    zoom 
+```
+
+```{r}
+qplot(depth, data = diamonds, geom = "density", color = cut) +
+    zoom 
+```
+
+```{r}
+qplot(price, data = diamonds, binwidth = 500) +
+    facet_wrap(~ cut)
+```
+
+```{r}
+qplot(price, data = diamonds, binwidth = 500, fill = cut)
+```
+
+```{r}
+qplot(price, data = diamonds, binwidth = 500, geom = "freqpoly", color = cut)
+```
+
+```{r}
+qplot(price, data = diamonds, binwidth = 500, geom = "density", color = cut)
+```
+
+
+## **4. Geoms for Big Data**
+
+```{r}
+qplot(carat, price, data = diamonds, color = cut)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "bin2d")
+```
+
+```{r}
+library(hexbin)
+qplot(carat, price, data = diamonds, geom = "hex")
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "density2d")
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = c("point", "density2d"))
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "smooth")
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "smooth", color = cut)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "smooth", color = cut, se = FALSE)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "smooth", color = cut, se = FALSE, method = lm)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, geom = "smooth", group = cut)
+```
+
+
+### Size and transparency
+
+```{r}
+qplot(carat, price, data = diamonds, color = "blue")
+```
+
+```{r}
+qplot(carat, price, data = diamonds, color = I("blue"))
+```
+
+```{r}
+qplot(carat, price, data = diamonds)
+```
+
+```{r}
+qplot(carat, price, data = diamonds, size = I(0.5))
+```
+
+```{r}
+qplot(carat, price, data = diamonds, alpha = I(0.1))
+```
+
+```{r}
+qplot(carat, price, data = diamonds, size = I(0.5), alpha = I(0.1))
+```
+
+## **5. Saving graphs**
+
+```
+getwd()
+dir()
+```
+
+```
+# Uses size on screen:
+ggsave("my-plot.pdf")
+ggsave("my-plot.png")
+```
+
+```
+# Specify size in inches
+ggsave("my-plot.pdf", width = 6, height = 6)
+```

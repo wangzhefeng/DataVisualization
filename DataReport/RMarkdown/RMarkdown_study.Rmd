@@ -1,0 +1,283 @@
+---
+title: "R_Markdown study"
+author: "王哲峰"
+date: "`r date()`"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+
+```{r, echo = FALSE}
+summary(cars)
+```
+
+```{r, eval = FALSE}
+summary(cars)
+```
+
+
+```
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+------------------------------------------------------------------
+
+## Markdown Quick Reference
+R markdown is an easy-to-write plain text format for creating dynamic documents and report.See [Using R Markdown](http://rmarkdown.rstudio.com/) to learn more.
+
+```{r, eval=FALSE}
+{r,echo=TRUE,eval=FALSE,fig.height=2/8,fig.width=2/8,message=FALSE,warning=FALSE,include=FALSE,results='markup'/'asis'/'hold'/'hide',fig.align='left'/'right'/'center',}
+```
+
+### Emphasis
+```{r,eval = FALSE}
+*italic* _italic_  
+**blod** __blod__
+```
+
+Demonstrate:  
+*italic* _italic_  
+**blod** __blod__
+
+### Headers
+```{r, eval = FALSE}
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+```
+Demonstrate:  
+
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+
+### Lists
+#### underlist
+```{r, eval = FALSE}
+* Item 1
+* Item 2
+    + Item 2a
+    + Item 2b
+```
+Demonstrate: 
+
+* Item 1
+* Item 2
+    + Item 2a
+    + Item 2b
+
+### Ordered List:
+```{r, eval = FALSE}
+1. Item 1
+2. Item 2
+3. Item 3
+    + Item 3a
+    + Item 3b
+```
+Demonstrate:
+
+1. Item 1  
+2. Item 2  
+3. Item 3
+    + Item 3a
+    + Item 3b
+
+### Manual Line Breaks
+#### End a line with two or more spaces:
+```{r, eval = FALSE}
+Roses are red,  
+Violets are blue.
+```
+Demonstrate: 
+
+Roses are red,  
+Violets are blue.
+
+### Links
+#### Use a plain http address or add a link to a phrase:
+```{r, eval = FALSE}
+[Using R Markdown](http://rmarkdown.rstudio.com/)
+```
+Demonstrate:  
+
+[Using R Markdown](http://rmarkdown.rstudio.com/)
+
+### Images
+#### Images on the web or local files in the same directory:
+```{r, eval = FALSE}
+![alt text](http://example.com/logo.png)
+
+![alt text](figures/img.png)
+```
+
+Local image: ![alt text](111.png)
+
+Internet Image: ![alt text](http://image227-c.poco.cn/best_pocoers/20140718/36212014071816343111657072.jpg)
+
+### Blockquotes
+
+```{r, eval = FALSE}
+A friend once said:
+
+> It's always better to give 
+> than to receive.
+```
+
+Demonstrate:  
+
+A friend once said:
+
+> It's always better to give 
+> than to receive.
+
+### R Code Blocks
+#### R code will be evaluated and printed
+```{r}
+summary(cars$dist)
+summary(cars$speed)
+```
+
+### Inline R Code
+```{r, eval = FALSE}
+There were `r nrow(cars)` cars studied
+```
+Demonstrate:  
+
+There were `r nrow(cars)` cars studied
+
+### Plain Code Blocks
+#### Plain code blocks are displayed in a fixed-width font but not evaulated
+```{r, eval = FALSE}
+This text is displayed verbatim / preformatted
+```
+Demonstrate:  
+
+```
+This text is displayed verbatim / preformatted
+```
+
+### Inline Code
+```{r, eval = FALSE}
+We defined the `add` function to 
+compute the sum of two numbers.
+```
+Demonstrate:  
+
+We defined the `add` function to 
+compute the sum of two numbers.
+
+### LaTeX Equations
+#### Inline Equation
+```{r, eval = FALSE}
+$a + b$
+```
+Demonstrate:  
+
+$a + b$
+
+#### Display Equation
+```{r, eval = FALSE}
+$$ a +b = c $$
+<math ...> </math>          #What's the meaning ?
+```
+Demonstrate:  
+
+$$ a +b = c $$  
+
+### Horizontal Rule / Page Break
+#### Three or more asterisks or dashes:
+```{r, eval = FALSE}
+******
+------
+```
+Demonstrate:  
+
+*******************************************************
+
+----------------------------------------------------------------------
+
+### Tables
+```{r, eval = FALSE}
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+```
+Demonstrate:  
+
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+```{r, results='asis'}
+knitr::kable(mtcars)
+```
+
+### Reference Style Links and Images
+#### Links
+```{r, eval = FALSE}
+A [linked phrase][id]. 
+
+At the bottom of the document:
+
+[id]: http://example.com/ "Title"
+```
+
+### Images
+```{r, eval = FALSE}
+![alt text][id]
+
+At the bottom of the document:
+
+[id]: figures/img.png "Title"
+```
+
+
+
+### Miscellaneous
+```{r, eval = FALSE}
+superscript^2^
+~~strikethrough~~
+```
+Demonstrate:  
+
+superscript^2^  
+~~strikethrough~~
+
+### Caching
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+### Typographic Entities
+```{r, eval = FALSE}
+ASCII characters are transformed into typographic HTML entities:
+Straight quotes ( " and ' ) into “curly” quotes
+Dashes (“--” and “---”) into en- and em-dash entities
+Three consecutive dots (“...”) into an ellipsis entity
+```
+
+

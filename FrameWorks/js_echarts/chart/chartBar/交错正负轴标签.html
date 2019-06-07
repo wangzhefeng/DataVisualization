@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <!-- IE浏览器兼容 -->
+    <!--[if lt IE 9]>
+    <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <title>交错正负轴标签</title>
+
+    <!-- Javascript -->
+    <script src="../script/jquery-3.1.1.js"></script>
+    <script src="../script/echarts.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/echarts_div.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h2>Date:2017-04-09 01:11:00</h2>
+    </div>
+
+    <!-- Main -->
+    <div id="main"></div>
+    <script>
+    var myChart = echarts.init($(main)[0]);
+    // var labelRight = {
+    //     normal: {
+    //         position: 'right'
+    //     }
+    // };
+    // var labelLeft = {
+    //     normal: {
+    //         position: 'left'
+    //     }
+    // };
+    var labelInside = {
+        normal: {
+            position: 'inside'
+        }
+    };
+    var option = {
+        title: {
+            text: '交错正负轴标签',
+            subtitle: 'From ExcelHome',
+            sublink: 'www.baidu.com'
+        },
+        //
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        toolbox: {
+        	dataView: {}, 
+        	saveAsImage: {
+        		pixelRation: 2
+        	}
+        },
+        grid: {
+            top: 80,
+            bottom: 30
+        },
+        xAxis: {
+            type: 'value',
+            position: 'top',
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            }
+        },
+        yAxis: {
+            type: 'category',
+            axisLine: {
+                show: true
+            },
+            axisLabel: {
+                show: true
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                show: false
+            },
+            data: ['ten', 'nine', 'eight', 'seven', 'six', 'five', 'four', 'three', 'two', 'one']
+        },
+        series: [{
+            name: '生活费',
+            type: 'bar',
+            stack: '总量',
+            label: {
+                normal: {
+                    show: true,
+                    formatter: '{b}'
+                }
+            },
+            data: [{
+                value: -0.07,
+                label: labelInside
+            }, {
+                value: -0.09,
+                label: labelInside
+            }, {
+                value: 0.2,
+                label: labelInside
+            }, {
+                value: 0.44,
+                label: labelInside
+            }, {
+                value: -0.23,
+                label: labelInside
+            }, {
+                value: 0.08,
+                label: labelInside
+            }, {
+                value: -0.17,
+                label: labelInside
+            }, {
+                value: 0.47,
+                label: labelInside
+            }, {
+                value: -0.36,
+                label: labelInside
+            }, {
+                value: 0.18,
+                label: labelInside
+            }]
+        }]
+    };
+    myChart.setOption(option);
+    </script>
+    
+    <!-- Footer -->
+    <div class="footer"></div>
+</body>
+
+</html>

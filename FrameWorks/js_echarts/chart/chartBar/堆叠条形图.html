@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<!-- IE浏览器兼容 -->
+
+	<!--[if lt IE 9]>
+    <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+	
+	<title>堆叠条形图</title>
+
+	<!-- Javascript -->
+	<script src="../script/jquery-3.1.1.js"></script>
+	<script src="../script/echarts.min.js"></script>
+	
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/echarts_div.css">
+	
+	<!-- Bootstrap -->
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">
+    </script>
+
+</head>
+
+<body>
+	<!-- Header -->
+	<div class="header">
+		<h2>Date:2017-04-29 21:12:00</h2>
+	</div>
+
+	<!-- Main -->
+	<div id="main"></div>
+	<script>
+		var myChart = echarts.init($(main)[0]);
+		var option = {
+			title: {
+				text: '堆叠条形图'
+			},
+			tooltip: {
+				trigger: 'axis',
+				axisPointer: {
+					type: 'shadow'
+				}
+			},
+			toolbox: {
+				dataView: {},
+				saveAsImage: {
+					pixelRation: 2
+				}
+			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '3%', 
+				containLabel: true
+			},
+			legend: {
+				data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+			},
+			xAxis: {
+				type: 'value'
+			},
+			yAxis: {
+				type: 'category',
+				data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+			},
+			series: [
+				{
+					name: '直接访问',
+					type: 'bar',
+					stack: '总量',
+					label: {
+						normal: {
+							show: true,
+							position: 'insideRight'
+						}
+					},
+					data: [320, 330, 390, 334, 301, 302, 320]
+				},
+				{
+					name: '邮件营销',
+					type: 'bar',
+					stack: '总量',
+					label: {
+						normal: {
+							show: true,
+							position: 'insideRight'
+						}
+					},
+					data: [210, 230, 90, 134, 101, 132, 120]
+				},
+				{
+					name: '联盟广告',
+					type: 'bar',
+					stack: '总量',
+					label: {
+						normal: {
+							show: true,
+							position: 'insideRight'
+						}
+					},
+					data: [310, 330, 290, 234, 191, 182, 220]
+				},
+				{
+					name: '视频广告',
+					type: 'bar',
+					stack: '总量',
+					label: {
+						normal: {
+							show: true,
+							position: 'insideRight'
+						}
+					},
+					data: [410, 330, 190, 154, 201, 212, 150]
+				},
+				{
+					name: '搜索引擎',
+					type: 'bar',
+					stack: '总量',
+					label: {
+						normal: {
+							show: true,
+							position: 'insideRight'
+						}
+					},
+					data: [1320, 1330, 1290, 934, 901, 832, 820]
+				}
+			]
+		};
+		myChart.setOption(option);
+	</script>
+
+	<!-- Footer -->
+    <div class="footer"></div>
+</body>
+</html>

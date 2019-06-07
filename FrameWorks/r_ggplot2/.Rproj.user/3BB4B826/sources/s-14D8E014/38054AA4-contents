@@ -1,0 +1,4131 @@
+---
+title: "ggplot2"
+author: "wangzhefeng"
+date: "May 3, 2018"
+output: html_document
+---
+
+```{r}
+knitr::opts_chunk$set(
+    engine.path = list(python = 'D:/Anaconda3/python')
+)
+```
+
+
+
+## 1.R语言数据预处理
+
+### 1.1 R数据结构与数据处理基础
+### 1.2 变量格式与因子变量
+### 1.3 数据索引、切片、聚合
+### 1.4 数据合并、联结、长宽转换
+### 1.5 字符串处理
+### 1.6 管道函数与向量化运算
+### 1.7 非结构化数据处理-list,json
+### 1.8 R语言与数据库交互
+### 1.9 高级数据处理神器-data.table
+
+- MySQL
+- SQL Server
+- Oracle
+- MongoDB
+- Redis
+
+### 1.9 高级数据处理神器-data.table
+
+```{r}
+if(!require(data.table)) install.packages('data.table')
+```
+
+#### 1.9.1 I/O读取
+
+* fread()
+* fwrite()
+
+```{r, eval = FALSE}
+# 读取数据
+mydata = fread("https://raw.githubusercontent.com/wiki/arunsrinivasan/flights/NYCflights14/flights14.csv")
+str(mydata)
+head(mydata)
+dim(mydata)
+```
+
+
+```{r, eval = FALSE}
+# 写入数据
+fwrite(mydata, "E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/flights14.csv")
+```
+
+
+#### 1.9.2 切片、索引、聚合
+
+* DT[i, j, by]
+
+```{r, eval = FALSE}
+carrier = unique(mydata$carrier)
+tailnum = sample(unique(mydata$tailnum), 5)
+origin = unique(mydata$origin)
+dest = sample(unique(mydata$dest))
+
+mydata[carrier == "AA"]
+mydata[carrier == "AA", ]
+```
+
+
+
+
+## **2.可视化基础——设计基础**
+
+#### 2.1 字体基础知识与字体环境安装
+#### 2.2 字体性格与字体应用场景
+#### 2.3 色彩基础知识与R语言配色环境
+#### 2.4 色彩性格与颜色应用场景
+#### 2.5 版式设计基础与排版四要素
+#### 2.6 行业优秀版式案例
+#### 2.7 设计元素在可视化中的角色定位
+#### 2.8 论一个商务图表的自我修养
+
+```{r, eval = FALSE}
+# 基础预设色 base::color() 657 colors
+colors()
+
+# 五大预设调色板
+rainbow()
+heat.colors()
+terrain.colors()
+topo.colors()
+cm.colors()
+
+# 自定义组合调色板
+colorRampPalette()
+
+# 灰度调色板
+gray(0:n/n)
+
+# hsv自定义调色板
+hsv(h = 1, s = 1, alpha)
+
+# 第三方扩展调色包
+if(!require(RColorBrewer)) install.packages("RColorBrewer")
+if(!require(ggthemes)) install.packages("ggthemes")
+if(!require(ggtech)) devtools::install_github("ricardo-bion/ggtech", dependencies = TRUE)
+```
+
+```{r, eval=FALSE}
+if(!require(scales)) install.packages("scales")
+
+# base::color()
+colors()
+show_col(sample(colors(), 100), labels = FALSE)
+
+# 五大预设调色板
+show_col(sample(rainbow(1000), replace = FALSE), labels = FALSE)
+show_col(sample(heat.colors(1000), replace = FALSE), labels = FALSE)
+show_col(sample(terrain.colors(1000), replace = FALSE), labels = FALSE)
+show_col(sample(topo.colors(1000), replace = FALSE), labels = FALSE)
+show_col(sample(cm.colors(1000), replace = FALSE), labels = FALSE)
+
+# 自定义组合调色板
+patellte = colorRampPalette(c("red", "green", "orange", "blue", "yellow"))(1000)
+show_col(patellte, labels = FALSE)
+
+# gray(0:n/n)
+show_col(gray(0:10000/10000), labels = FALSE)
+
+# hsv
+x = seq(0, 10) / 10
+ndx = expand.grid(x, x, x)
+mycolor = hsv(ndx[, 3], ndx[, 2], ndx[, 1])
+show_col(mycolor, labels = FALSE)
+```
+
+
+## 3.ggplot2图层语法基础
+
+* 3.1 ggplot2图层语法框架
+* 3.2 几何图层(美学映射、位置参数)
+* 3.3 标度调整
+* 3.4 图例系统
+* 3.5 坐标轴系统
+* 3.6 标签系统
+* 3.7 分面系统
+* 3.8 主题系统
+
+### 3.1 ggplot2图层语法框架
+
+
+```{r, eval=FALSE}
+library(ggplot2)
+library(ggtheme)
+library(plotly)
+
+ggplot(data, 
+       mapping = aes(x, y, group, colour, fill, alpha, size, shape, linetype), 
+       colour, fill, alpha, stroke, size, shape, linetype) +
+    geom_xxx(mapping = aes(x, y, group, colour, fill, alpha, stroke, size, shape, linetype),
+             group, colour, fill, alpha, stroke, size, shape, linetype,
+             data, 
+             stat,
+             position,
+             na.rm = FALSE,
+             show.legend = FALSE,
+             inherit.aes = TRUE) +
+    geom_blank() +
+    
+    geom_point() +
+    geom_count() +
+    stat_sum() + 
+    geom_bin2d() + 
+    stat_bin_2d() +
+    geom_hex() + 
+    stat_bin_hex() +
+    geom_dotplot() +
+    geom_jitter() +
+    
+    geom_smooth() +
+    geom_curve() +
+    geom_line() +
+    geom_path() +
+    geom_step() +
+    geom_abline() +
+    geom_hline() +
+    geom_vline() +
+    geom_crossbar() +
+    geom_linerange() +
+    geom_pointrange() +
+    geom_errorbar() +
+    geom_errorbarh() +
+    geom_histogram() +
+    geom_density() +
+    geom_density_2d() +
+    geom_density2d() +
+    geom_bar() +
+    geom_col() +
+    geom_boxplot() +
+    geom_violin() +
+    geom_segment() +
+    geom_spoke() +
+    geom_freqpoly() +
+    geom_polygon() +
+    geom_area() +
+    geom_ribbon() +
+    geom_contour() +
+    geom_hex() +
+    # geom_bin2d() +
+    geom_raster() +
+    geom_rect() +
+    geom_tile() +
+    geom_rug() +
+    geom_qq() +
+    geom_quantile() +
+    
+    # continuous
+    scale_x/y_continuous(name,        # 轴标题
+                         labels,      # 轴标签 
+                         breaks,      # 主网络线(刻度线)
+                         minor_breaks # 次网络线(刻度线)
+                         limits,      # 标度范围(刻度范围)
+                         expand,      # 刻度起始位置(是否从0开始)
+                         na.value,    # 缺失值处理
+                         trans = c("asn", "atanh", "boxcox", 
+                                   "exp", "identity", 
+                                   "log", "log10", "log2", 
+                                   "logit", "probablity", "probit", 
+                                   "reciprocal", "reverse", "sqrt"),       # 坐标轴变换
+                         position,    # 坐标轴位置(横轴左右，纵轴上下)
+                         sec.axis     # 是否开启次坐标轴
+                         ) +
+    scale_x/y_reverse() +
+    scale_x/y_log10() +
+    scale_x/y_sqrt() +
+    scale_x/y_date(name, limits, breaks, lables, date_breaks, date_labels,) +
+    scale_x/y_time() +
+    scale_x/y_datetime() +
+    # discrete
+    scale_x/y_discrete(name,        # 轴标题
+                       labels,      # 轴标签 
+                       breaks,      # 主网络线(刻度线)
+                       limits,      # 标度范围(刻度范围)
+                       expand,      # 刻度起始位置(是否从0开始)
+                       na.value,    # 缺失值处理
+                       trans,       # 坐标轴变换
+                       position    # 坐标轴位置(横轴左右，纵轴上下)
+                       ) +
+    
+    scale_colour/fill_continuous() +
+    scale_colour/fill_discrete() +
+    scale_colour/fill_brewer() + 
+    scale_colour/fill_date() +
+    scale_colour/fill_datetime() +
+    scale_colour/fill_distiller() +
+    scale_colour/fill_gradient(low, high, 
+                               space = "Lab", 
+                               na.value, 
+                               guide = "colourbar", 
+                               aesthetics = "colour/fill") +
+    scale_colour/fill_gradient2(low, 
+                                mid,
+                                high,
+                                midpoint,
+                                space = "Lab",
+                                na.value,
+                                guide = "colourbar", 
+                                aesthetics = "colour/fill") +
+    scale_colour/fill_gradientn(colours, 
+                                values, 
+                                space = "Lab",
+                                na.value,
+                                guide = "colourbar", 
+                                aesthetics = "colour/fill") +
+    scale_colour/fill_grey() +
+    scale_colour/fill_manual() +
+    scale_colour/fill_hue() +
+    scale_colour/fill_identity() +
+    scale_alpha_continuous() +
+    scale_alpha_discrete() +
+    scale_alpha_identity() +
+    scale_alpha_manual() +
+    scale_alpha() +
+    
+    scale_size_continuous() +
+    scale_size_discrete() +
+    scale_size_identity() +
+    scale_size_manual() +
+    scale_size_area() +
+    scale_size() +
+    scale_size_date() +
+    scale_size_datetime() +
+    
+    
+    scale_shape_continuous() +
+    scale_shape_discrete() +
+    scale_shape_identity() +
+    scale_shape_manual() +
+    scale_shape() +
+    
+    scale_linetype_continuous() +
+    scale_linetype_discrete() +
+    scale_linetype_identity() +
+    scale_linetype_manual() +
+    scale_linetype() +
+    
+    lims() +
+    xlim() +
+    ylim() +
+    expand_limits() +
+    labs(x, y, title, subtitle, caption) +
+    xlab(label) +
+    ylab(label) +
+    ggtitle(title, subtitle) +
+    geom_text(data = NULL,
+              mapping = aes(x, y, label, alpha, angle, colour, size, family, fontface, hjust, vjust, lineheight),
+              stat = "identity",
+              position = "identity") +
+    geom_label() +
+    
+    annotation(geom = "text", x = x, y = y, label = label) +
+    annotation(geom = "rect", xmin = xmin, ymin = ymin, xmax = xmax, ymax = ymax) +
+    annotation(geom = "segment", x = x, y = y, xend = xend, yend = yend) +
+    annotation_custom() +
+    annotation_logticks() +
+    annotation_map() +
+    annotation_raster() +
+    geom_map() +
+    
+    coord_cartesian() +
+    coord_equal() +
+    coord_fixed() +
+    coord_flip() +
+    coord_munch() +
+    coord_quickmap() +
+    coord_trans() + 
+    coord_polar() +
+    coord_map() +
+    
+    facet_grid(.~ variable,
+               free, 
+               fixed,
+               free_x,
+               free_y) +
+    facet_wrap(~ variable,
+               free, 
+               fixed,
+               free_x, 
+               free_y,
+               nrow) +
+    facet_null() + 
+    
+    guides(
+        # continuous
+        colour = guide_colorbar(title = "",
+                                title.position = "",
+                                title.theme = element_text(),
+                                title.vjust,
+                                title.hjust,
+                                label,
+                                label.position,
+                                label.vjust,
+                                label.hjust,
+                                label.theme = element_text(),
+                                direction,
+                                barwidth,
+                                barheight,
+                                nbin,
+                                ticks,
+                                draw.ulim,
+                                draw.llim),
+        fill = guide_colorbar(),
+        # discrete
+        color = guide_legend(title = "",
+                             title.position = "",
+                             title.theme = element_text(),
+                             title.vjust,
+                             title.hjust,
+                             label,
+                             label.position,
+                             label.vjust,
+                             label.hjust,
+                             label.theme = element_text(),
+                             direction,
+                             key.width, 
+                             key.height,
+                             key.size,
+                             nrow,
+                             ncol,
+                             byrow),
+        fill = guide_legend(),
+        size = guide_legend(),
+        shape = guide_legend(),
+        linetype = guide_legend(),
+        alpha = guide_legend()
+    )
+    
+    theme() +
+    theme_base() +
+    theme_bw() +
+    theme_calc() +
+    theme_classic() +
+    theme_dark() +
+    theme_economist() +
+    theme_economist_white() +
+    theme_excel() +
+    theme_few() +
+    theme_fivethirtyeight() +
+    theme_foundation() +
+    theme_gdocs() +
+    theme_get() +
+    theme_gray() +
+    theme_grey() +
+    theme_hc() +
+    theme_igray() +
+    theme_light() +
+    theme_linedraw() +
+    theme_map() +
+    theme_minimal() +
+    theme_pander() +
+    theme_par() +
+    theme_replace() +
+    theme_set() +
+    theme_solarized() +
+    theme_solarized_2() + 
+    theme_solid() +
+    theme_stata() +
+    theme_tufte() +
+    theme_update() +
+    theme_void() +
+    theme_wsj()
+
+
+ggsave()
+plotly::ggplotly()
+```
+
+
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/ggplot2_position.PNG)
+
+
+* Import 
+    - readr
+    - httr
+    - rvest
+    - RCrul
+    - xml2
+    - jsonlite
+    - rlist
+    - RMySQL
+* Transform
+    - dplyr
+    - tidyr
+    - data.table
+    - lubridate
+    - stringr
+    - magrittr
+* Model 
+    - Broom
+    - modelr
+    - ...
+* Visualisation
+    - graphs
+    - grid
+    - lattic
+    - `ggplot2`
+
+#### 3.1.1 ggplot2图层语法抽象
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/ggplot2_mapping1.PNG)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/ggplot2_mapping2.PNG)
+
+#### 3.1.2 ggplot2图层语法概览
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/ggplot2_summary.PNG)
+
+
+#### 3.1.3 ggplot2数据源
+
+* ggplot2默认支持数据框
+    - 数据框
+    - 等长的向量(不等长会自动补齐)
+* 自定义向量作图
+    - 适用向量作为数据源，需要将data设置为NULL
+    - 所有美学映射参数指定向量对象需等长(否则自动对齐)
+
+
+
+### 3.2 几何图层(美学映射、位置参数)
+
+#### 3.2.1 ggplot与geom对象之间的关系
+
+> ```
+> ggplot(data = NULL, mapping = aes()) +
+>     geom_xxx(data = NULL, mapping = aes())
+> ```
+
+* ggplot()是ggplot2图形对象的初始化函数，相当于整个画板的画布，也可以理解为父函数；
+    - ggplot()内有data, mapping两个主要参数对象，这两个参数具有全局优先级，可以被之后的所有geom对象所继承(前提是geom_xxx()内未指定相关参数)；
+* geom_xxx()是几何对象，以geom开头的所有函数都代表着一个单独的图层类型，相当于画布上的层层画像也可以理解为子函数；
+    - geom_xxx()对象内同样有data, mapping参数，但geom_xxx()内的data和mapping参数属于局部参数，仅作用于geom_xxx()内部。
+
+#### 3.2.2 ggplot与geom对象参数共享问题
+
+参数共享分为三种情况：
+
+* 所有图层对象(geom_xxx())共享相同数据源(data)和美学映射(mapping)；
+* 所有图层对象共享部分数据源；
+* 个图层对象均使用独立的数据源；
+
+#### 3.2.3 例子
+
+```{r}
+mydata1 = data.frame(x = 1:10, y = runif(10, 0, 100))
+mydata1$class = sample(LETTERS[1:3], 10, replace = TRUE)
+mydata1$x1 = runif(10, 0, 100)
+mydata1$y1 = runif(10, 0, 100)
+
+mydata2 = data.frame(x = 1:10, y = runif(10, 0, 100))
+
+mydata3 = data.frame(x = 1:10, y = runif(10, 0, 100))
+
+mydata1
+mydata2
+mydata3
+```
+
+#### (1)全部共享
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(data = mydata1, mapping = aes(x = x, y = y)) +
+    geom_point(size = 5, shape = 21, colour = "red")
+
+ggplot() +
+    geom_point(data = mydata1, mapping = aes(x = x, y = y), size = 5, shape = 21, colour = "red")
+
+
+ggplot() + 
+    geom_point(data = mydata1, mapping = aes(x = x, y = y), size = 5, shape = 21, fill = NA, colour = "red") +
+    geom_line(data = mydata1, mapping = aes(x = x, y = y))
+
+ggplot(data = mydata1, mapping = aes(x = x, y = y)) +
+    geom_point(size = 5, shape = 21, fill = NA, colour = "red") +
+    geom_line()
+```
+
+#### (2)只共享数据
+
+```{r}
+ggplot() +
+    geom_point(data = mydata1, mapping = aes(x = x, y = y), size = 5, shape = 21, fill = NA, colour = "red") +
+    geom_line(data = mydata1, mapping = aes(x = x1, y = y1))
+
+ggplot(data = mydata1) +
+    geom_point(mapping = aes(x = x, y = y), size = 5, shape = 21, fill = NA, colour = "red") +
+    geom_line(mapping = aes(x = x1, y = y1))
+```
+
+
+#### (3)不共享
+
+```{r}
+ggplot() +
+    geom_point(data = mydata1, mapping = aes(x = x, y = y)) +
+    geom_line(data = mydata2, mapping = aes(x = x, y = y)) +
+    geom_line(data = mydata3, mapping = aes(x = x, y = y))
+```
+
+
+#### 3.2.4 ggplot与geom对象美学映射参数位置问题
+
+> * 美学映射参数位置何时应该在aes内部，何时应该在aes外部？
+     - 共性映射与个性映射
+         - 当指定的美学映射参数需要进行个性化映射时（即一一映射），应该写在aes函数内部，即每一个观测值都会按照我们指定的特定变量值进行个性化设定；
+        - 当需要统一设定某些图表元素对象（共性，统一化）时，此时应该将其参数指定在aes函数外部，即所有观测值都会按照统一属性进行映射；
+
+#### 例子
+
+```{r}
+ggplot() +
+    geom_point(data = mydata1, mapping = aes(x = x, y = y), colour = "green", size = 5)
+
+ggplot() + 
+    geom_point(data = mydata1, mapping = aes(x = x, y = y, colour = x1), size = 5)
+```
+
+#### 3.2.5 几何对象与统计变换
+
+> ```
+> geom_xxx(mapping = aes(), data = NULL, stat = "", position = NULL)
+> stat_xxx(mapping = aes(), data = NULL, geom = "", position = NULL)
+> ```
+
+
+> * geom_xxx()与stat_xxx()都视作做图层
+    - 在大多是成对出现的(注意不是全部)，geom_xxx(),stat_xxx()中，它们完成的动作都是一致的，达到的效果一样,几乎是殊途同归；
+    - 每一个图层都包含一个几何对象和一个统计变换，也即每一个geom_xxx开头的几何对象都含有一个stat(统计变换)参数，同时每一个stata_xxx开头的几何对象都拥有一个geom(几何对象)参数；
+    - 在某些特殊类型统计图形制作过程中（譬如柱形图、直方图、平滑曲线图、概率密度曲线、箱线图等），数据对象在向几何对象的视觉信号映射过程中，会做特殊转换，也称统计变换过程，为了让作图者更好的聚焦于统计变换过程，将该图层以同效果的stat_xxx()命名可以很好地达到聚焦注意力的作用；
+    - 而以stat_xxx()统计变换开始的图层，在制作这些特殊统计图形时，我们无需设定统计变换参数（因为函数开头名称已经声明了），但需指定集合对象名称【图表类型】，这样可以使得作图过程更加关注统计变换过程。
+
+#### 例子
+
+```{r}
+x = c(rnorm(100, 14, 5))
+y = c(rnorm(100, 14, 5) + rnorm(100, 0, 1))
+
+ggplot(data = NULL, mapping = aes(x = x, y = y)) + 
+    geom_point(colour = "darkred", stat = "identity")
+
+ggplot(data = NULL, mapping = aes(x = x, y = y)) +
+    stat_identity(colour = "darkred", geom = "point")
+```
+
+#### 3.2.6 位置调整position
+
+* Position是每一个图层均存在的位置调整参数(在有些几何对象中并不适用)
+    - identity: 不做任何位置调整
+    - stack: 垂直堆叠放置(堆积柱形图)
+    - dodge: 水平抖动放置(簇状柱形图)
+    - fill: 百分比(垂直堆叠放置，如百分比堆积面积图， 百分比堆积柱形图)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/position.PNG)
+
+
+### **3.3 标度调整**
+
+#### 3.3.1 美学映射参数
+
+##### Colour and fill
+
+
+##### Lines
+
+
+##### Size
+
+
+##### Polygons
+
+
+##### Point
+
+
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/aes_params.PNG)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/point_shape.PNG)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/linetype.PNG)
+
+#### 3.3.2 美学映射参数与变量类型的对应关系
+
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/scale.PNG)
+
+
+#### 3.3.3 标度类型
+
+* 轴标度
+    - x: x轴
+    - y: y轴
+* 可视化元素标度
+    - colour: 轮廓色标度，点颜色，字体颜色
+    - fill: 填充色标度，点填充色，面积填充色
+    - alpha: 透明度标度，点、线、面透明度
+    - size: 大小(规模)标度，点大小、线粗细、字体大小
+    - shape: 形状标度，点形状、圆形、星形、菱形、雪花形
+    - linetype: 线形状，线条类型(0, 2, 3, 4, 5, 6, 7)，实线，虚线及其他各种类型线
+
+
+#### 3.3.3 标度类型调整函数
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/scale_func.PNG)
+
+### **3.4 图例系统**
+
+```
+guides(fill = guide_legend())
+guides(fill = guide_colorbar())
+
+guides(color = guide_legend())
+guides(color = guide_colorbar())
+```
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/guides.PNG)
+
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/guides_params.PNG)
+
+
+### **3.5 坐标轴系统**
+
+* 笛卡尔坐标系(默认)
+    - coord_cartesian()
+* 固定宽高比
+    - coord_fixed()
+* 翻转
+    - coord_flip()
+* 地图坐标系
+    - coord_map()
+* 极坐标转换
+    - coord_polar()
+
+
+### 3.6 标签系统
+
+#### 3.6.1 数据标签
+
+```
+geom_text(
+    data = NULL,
+    mapping = (x, y, label, alpha, angle, colour, size, group, family, fontface, hjust, vjust, lineheight),
+    stat = "identity",
+    position = "identity"
+)
+geom_label()
+```
+
+#### 3.6.2 标题、副标题、备注
+
+```
+labs(x = , y = , title = , subtitle = , caption = )
+xlab(label)
+ylab(label)
+ggtitle(title = , subtitle = )
+
+```
+
+#### 3.6.3 添加自定义注释
+
+```
+annotations(geom = "text", x = x, y = y, label = label)
+annotations(geom = "rect", xmin = xmin, ymin = ymin, xmax = xmax, ymax = ymax)
+annotations(geom = "segment", x = x, y = y, xend = xend, yend = yend)
+```
+
+
+### 3.7 分面系统
+
+* facet_grid--网络分面
+
+```
+# 按行分面
+facet_grid(.~ Year,
+           free, 
+           fixed,
+           free_x, 
+           free_y)
+
+# 按列分面
+facet_grid(Year ~.,
+           free, 
+           fixed,
+           free_x, 
+           free_y)
+```
+
+* facet_wrap--封装分面
+    - 仅限一维分面
+
+```
+facet_wrap(~ Year,
+           free, 
+           fixed,
+           free_x,
+           free_y,
+           nrow)
+```
+
+#### 3.6.4 例子
+
+
+```{r}
+data <- data.frame(Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+                   Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+                   Sale2013 = c(5000,3500,2300,2100,3100),
+                   Sale2014 = c(5050,3800,2900,2500,3300),
+                   Sale2015 = c(5050,3800,2900,2500,3300),
+                   Sale2016 = c(5050,3800,2900,2500,3300))
+mydata <- melt(data, 
+               id.vars = c("Name", "Company"),
+               variable.name = "Year",
+               value.name = "Sale")
+mydata
+```
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = reorder(Company, Sale), y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    facet_grid(Year ~.)
+
+
+ggplot(data = mydata, mapping = aes(x = reorder(Company, Sale), y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    facet_grid(.~ Year)
+
+ggplot(data = mydata, mapping = aes(x = reorder(Company, Sale), y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    facet_wrap(~ Year)
+```
+
+
+
+
+### 3.8 主题系统
+
+#### 3.8.1 模块继承关系
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/theme.PNG)
+
+#### 3.8.2 标签类型
+
+```
+element_text()
+element_rect()
+element_line()
+element_blank()
+```
+
+
+#### 3.8.3 文本标签
+
+```
+element_text()
+element_rect()
+element_line()
+element_blank()
+```
+### 3.8.4 图例部分
+
+```
+element_text()
+element_rect()
+element_line()
+element_blank()
+```
+
+## **4.标度、图例、坐标系、主题**
+
+Content:
+
+* 4.1 x/y轴标度详解
+    - scale_x_xxx()
+    - scale_x_xxx()
+* 4.2 颜色标度详解
+    - scale_colour_xxx()
+    - scale_fill_xxx()
+    - scale_alpha_xxx()
+* 4.3 其他标度(大小、形状、线条)详解
+    - scale_size_xxx()
+    - scale_shape_xxx()
+    - scale_linetype_xxx()
+* 4.4 图例美化
+    - guides()
+* 4.5 坐标系详解
+    - coord_xxx()
+* 4.6 主题封装与自定义
+    - theme()
+    - theme_xxx()
+
+
+#### 4.1 x/y轴标度详解
+
+
+```
+scale_x/y_continuous()
+scale_x/y_continuous(trans = "log10")
+scale_x/y_log10()
+scale_x/y_continuous(trans = "sqrt")
+scale_x/y_sqrt()
+scale_x/y_continuous(trans = "reverse")
+scale_x/y_reverse()
+scale_x/y_discrete()
+scale_x/y_date()
+scale_x/y_time()
+scale_x/y_datetime()
+```
+
+#### 4.1.1 三种常见的坐标轴变换
+
+```{r}
+library(ggplot2)
+mydata = data.frame(
+    x = 1:100,
+    y = rnorm(100, 1000, 500)
+)
+mydata
+```
+
+```{r}
+p1 = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_point()
+p1
+p1 + scale_y_continuous(trans = "log10")
+p1 + scale_y_log10()
+p1 + scale_y_continuous(trans = "sqrt")
+p1 + scale_y_sqrt()
+p1 + scale_x_continuous(trans = "reverse")
+p1 + scale_x_reverse()
+p1 + scale_y_continuous(trans = "reverse")
+p1 + scale_y_reverse()
+```
+
+#### 4.1.2 连续性坐标轴参数
+
+```{r}
+p1 + scale_x_continuous(
+    name = "X轴",              # 与lab(x, y)效果相同
+    limits = c(25, 75),
+    breaks = seq(25, 75, 5),
+    labels = paste0(seq(25, 75, 5), "个"),
+    minor_breaks = seq(25, 75, 2.5),
+    expand = c(0, 0),
+    position = "top"
+) + 
+    labs(x = "X")
+```
+
+
+#### 4.1.3 连续性坐标轴变体-日期型坐标轴
+
+```{r}
+lct = Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+```
+
+```{r}
+mydata = data.frame(
+    x = seq(as.Date("2018-05-01"), as.Date("2018-05-31"), by = "1 day"),
+    y = rnorm(31, 1000, 500)
+)
+mydata
+p1 = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_line()
+p1
+p1 + scale_x_date(
+    limits = c(Sys.Date() - 15,  Sys.Date())
+)
+p1 + scale_x_date(date_labels = "%b %d")
+p1 + scale_x_date(date_breaks = "1 week")
+p1 + scale_x_date(date_breaks = "1 week", date_labels = "%W")
+p1 + scale_x_date(date_minor_breaks = "1 day")
+p1 + scale_x_date(
+    breaks = seq(as.Date("2018-05-01"), as.Date("2018-05-31"), by = "3 days"),
+    labels = format(seq(as.Date("2018-05-01"), as.Date("2018-05-31"), by = "3 days"), format = "%m%d")
+)
+```
+
+#### 4.1.4 离散性坐标轴
+
+```{r}
+mydata2 = data.frame(
+    x = sample(LETTERS[1:5], 20, replace = TRUE),
+    y = runif(20, 100, 500)
+)
+mydata2
+
+p1 = ggplot(data = mydata2, mapping = aes(x = x, y = y)) +
+    geom_bar(stat = "identity")
+p1
+
+p1 + scale_x_discrete(
+    name = "X轴",
+    limits = c("A", "B", "C", "D"),
+    breaks = c("C", "D"),
+    labels = paste0(c("C", "D"), "箱"),
+    expand = c(0, 0),
+    position = "top"
+)
+```
+
+
+#### 4.2 颜色标度详解
+
+#### 4.2.1 透明度标度 
+
+```
+scale_alpha_continuous(range(0, 1), limits, breaks, labels)
+sclae_alpha_discrete(range(0, 1), limits, breaks, labels)
+scale_alpha_manual(limits, breaks, labels, values)
+
+scale_alpha_identity()
+scale_alpha()
+```
+
+#### 例子
+
+```{r}
+p = ggplot(data = diamonds, mapping = aes(x = depth, y = price)) +
+    geom_point(mapping = aes(alpha = carat))
+p
+
+p + scale_alpha_continuous(range= c(0.4, 0.8))
+```
+
+
+```{r}
+p = ggplot(data = diamonds, mapping = aes(x = depth, price)) +
+    geom_point(mapping = aes(alpha = color))
+p
+p + scale_alpha_discrete(range = c(0.4, 0.8))
+```
+
+
+```{r}
+p = ggplot(data = diamonds, mapping = aes(x = depth, y = price)) +
+    geom_point(mapping = aes(alpha = color))
+p
+p + scale_alpha_manual(
+    limits = levels(diamonds$color),
+    breaks = c("D", "E", "F", "G", "H"),
+    labels = c("D-d", "E-e", "F-f", "G-g", "H-h"),
+    values = c(0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75)
+)
+```
+
+
+
+#### 4.2.2 轮廓色和填充色标度
+
+```
+scale_colour/fill_continuous(limits, breaks, labels, low, high)
+scale_colour/fill_gradient(limits, breaks, labels, low, high)
+scale_colour/fill_gradient2(limits, breaks, labels, low, mid, high)
+scale_colour/fill_distiller(palette)
+
+scale_colour/fill_discrete(limits, breaks, labels)
+scale_colour/fill_hue(h, l, c, start, end)
+scale_colour/fill_grey()
+scale_colour/fill_brewer(palette, direction)
+
+scale_colour/fill_manual(limits, breaks, labels, values)
+```
+
+#### 连续性颜色标度
+
+```{r}
+mydata = data.frame(
+    x = runif(100, 0, 100),
+    y = runif(100, 0, 100),
+    z = runif(100, 0, 100),
+    h = runif(100, 0, 100),
+    g = rep(LETTERS[1:5], each = 20)
+)
+
+p = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_point(mapping = aes(colour = z), shape = 19, size = 5)
+p
+p + scale_colour_continuous(low = "#FEE0B6",
+                            high = "#006937",
+                            guide = "colorbar")
+```
+
+```{r}
+p + scale_colour_gradient(
+    low = "#FEE0B6",
+    high = "#006837",
+    guide = "colorbar"
+)
+```
+
+```{r}
+p + scale_colour_gradient2(
+    low = "#1A9850",
+    mid = "#F5F5F5",
+    high = "#F46D43",
+    guide = "colorbar",
+    midpoint = mean(mydata$z)
+)
+```
+ 
+
+```{r}
+p + scale_colour_distiller(
+    type = "seq",
+    palette = 1,
+    direction = 1
+)
+p + scale_colour_distiller(palette = "RdYlBu")
+p + scale_colour_distiller(palette = "RdYlGn")
+```
+
+
+#### 离散型颜色标度
+
+
+```{r}
+p = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_point(mapping = aes(colour = g), shape = 19, size = 5)
+p
+p + scale_colour_discrete()
+p + scale_colour_hue()
+p + scale_colour_grey()
+```
+
+
+```{r}
+# 单色系
+p + scale_colour_brewer(type = "seq", palette = 1)
+p + scale_colour_brewer(type = "seq", palette = 1, direction = -1)
+p + scale_colour_brewer(palette = "Blues", direction = -1)
+p + scale_colour_brewer(palette = "Green", direction = -1)
+```
+
+
+```{r}
+# 二分色系
+p + scale_colour_brewer(palette = "RdYlBu", direction = -1)
+p + scale_colour_brewer(palette = "Paired", direction = -1)
+```
+
+```{r}
+# 自定义色盘
+p = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_point(mapping = aes(colour = g), shape = 19, size = 5)
+p
+p + scale_colour_manual(
+    limits = LETTERS[1:4],
+    breaks = LETTERS[1:4],
+    labels = c("A_a", "B_b", "C_c", "D_d"),
+    values = c("#F46D43", "#D9F0D3", "#1A9850", "#006837")
+)
+
+p + scale_colour_manual(
+    limits = LETTERS[1:4],
+    breaks = LETTERS[4:1],
+    labels = c("A_a", "B_b", "C_c", "D_d"),
+    values = c("#F46D43", "#D9F0D3", "#1A9850", "#006837")
+)
+```
+
+
+#### 4.3 大小、形状、线条标度
+
+
+```
+scale_linetype_discrete(name, limits, breaks, labels)
+scale_linetype_manual(name, limits, breaks, labels, values)
+
+scale_shape(name, limits, breaks, labels)
+scale_shape_manual(name, limits, breaks, labels, values)
+
+scale_radius(name, limits, breaks, labels, range)
+scale_size(name, limits, breaks, labels, range)
+scale_size_area(name, limits, breaks, labels, range)
+```
+
+#### 4.3.1 线条标度
+
+```{r}
+ltc = Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+
+mydata = data.frame(
+    x = rep(seq(as.Date("2018-03-01"), as.Date("2018-03-10"), by = "1 day"), each = 5),
+    y = abs(rnorm(50, 1000, 500)),
+    z = rep(LETTERS[1:5], length = 50)
+)
+```
+
+```{r}
+p = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_line(mapping = aes(linetype = z, colour = z), size = 1)
+p
+p + scale_linetype_discrete()
+p + scale_linetype_manual(
+    limits = LETTERS[1:5],
+    breaks = LETTERS[1:5],
+    labels = paste0(LETTERS[1:5], "_", letters[1:5]),
+    values = c("solid", "dashed", "dotted", "dotdash", "longdash")
+)
+```
+
+#### 4.3.2 点形状标度
+
+```{r}
+p = ggplot(data = mydata, mapping = aes(x = x, y = y)) +
+    geom_line(mapping = aes(colour = z), size = 1.5) +
+    geom_point(mapping = aes(colour = z, shape = z), size = 5)
+p
+
+# p + scale_shape_continuous()
+p + scale_shape_discrete()
+p + scale_shape_manual(
+    limits = LETTERS[1:5],
+    breaks = LETTERS[1:5],
+    labels = paste0(LETTERS[1:5], "_", letters[1:5]),
+    values = c(0, 1, 2, 5, 6)
+)
+
+```
+
+
+#### 4.3.3 点大小标度
+
+```{r}
+mydata = data.frame(
+    x = runif(100, 1, 100),
+    y = runif(100, 1, 100),
+    z = runif(100, 1, 100)
+)
+
+p = ggplot(data = mydata, mapping = aes(x = x, y = y, size = z)) +
+    geom_point()
+p
+p + scale_radius()
+p + scale_size()
+# p + scale_size_discrete() 
+```
+
+
+#### 4.4 图例系统
+
+```
+guides(
+        # continuous
+        colour = guide_colorbar(title = "",
+                                title.position = "",
+                                title.theme = element_text(),
+                                title.vjust,
+                                title.hjust,
+                                label,
+                                label.position,
+                                label.theme = element_text(),
+                                label.vjust,
+                                label.hjust,
+                                direction,
+                                barwidth,
+                                barheight,
+                                nbin,
+                                ticks,
+                                raster,
+                                draw.ulim = TRUE,
+                                draw.llim = TRUE,
+                                default.unit = "line",
+                                reverse = TRUE,
+                                order = 0),
+        fill = guide_colorbar(),
+        # discrete
+        color = guide_legend(title = "",
+                             title.position = "",
+                             title.theme = element_text(),
+                             title.vjust,
+                             title.hjust,
+                             label,
+                             label.position,
+                             label.vjust,
+                             label.hjust,
+                             label.theme = element_text(),
+                             direction = "horizontal",
+                             key.width, 
+                             key.height,
+                             key.size,
+                             nrow = 8,
+                             ncol = 8,
+                             byrow = TRUE, 
+                             reverse = TRUE),
+        fill = guide_legend(),
+        size = guide_legend(),
+        shape = guide_legend(),
+        linetype = guide_legend(),
+        alpha = guide_legend()
+    )
+```
+
+
+#### 例子
+
+```{r}
+mydata = data.frame(
+    x = runif(100, 0, 100),
+    y = runif(100, 0, 100),
+    z = runif(100, 0, 100),
+    f = runif(100, 0, 100),
+    g = rep(LETTERS[1:5], each = 20)
+)
+
+p = ggplot(data = mydata, 
+           mapping = aes(x = x, y = y)) +
+    geom_point(mapping = aes(fill = z, size = f), shape = 21)
+p
+
+colorbar = guide_colorbar(
+    title = "Colorbar",
+    title.position = "left", # left,right,top,bottom
+    title.theme = element_text(size = 15, face = "italic", 
+                               colour = "red", angle = 90),
+    title.hjust = 0.5, # 0, 0.5, 1 
+    title.vjust = 0,   # 0, 0.5, 1
+    label = TRUE,
+    label.position = "top", # left,right,top,bottom
+    label.theme = element_text(size = 15, face = "italic",
+                               colour = "red", angle = 0),
+    label.hjust = 0.5, # 0, 0.5, 1 
+    label.vjust = 0.5, # 0, 0.5, 1 
+    barwidth = unit(6, "cm"),
+    barheight = unit(1.2, "cm"),
+    nbin = 20,
+    ticks = TRUE,
+    draw.ulim = TRUE,
+    draw.llim = TRUE,
+    direction = "horizontal", # vertical
+    reverse = TRUE,
+    order = 1
+)
+
+size_legend = guide_legend(
+    title = "Legend",
+    title.position = "left", # left,right,top,bottom
+    title.theme = element_text(size = 15, face = "italic", 
+                               colour = "red", angle = 90),
+    title.hjust = 0.5, # 0, 0.5, 1 
+    title.vjust = 0.5,   # 0, 0.5, 1
+    label = TRUE,
+    label.position = "bottom", # left,right,top,bottom
+    label.theme = element_text(size = 15, face = "italic",
+                               colour = "red", angle = 0),
+    label.hjust = 0.5, # 0, 0.5, 1 
+    label.vjust = 0.5, # 0, 0.5, 1 
+    keywidth = 2.5,
+    keyheight = 2,
+    nrow = 2,
+    byrow = TRUE,
+    direction = "horizontal", # vertical
+    reverse = TRUE,
+    order = 2
+) 
+p + scale_fill_gradient(breaks = seq(0, 100, 10)) +
+    scale_size_area(breaks = seq(0, 100, 10)) +
+    guides(fill = colorbar, size = size_legend)
+```
+
+
+#### 4.4 坐标轴系统
+
+
+```
+coord_filp()
+coord_polar()
+coord_map()
+```
+
+#### 例子
+
+```{r}
+library(magrittr)
+mydata <- data.frame(
+  Name = c("苹果", "谷歌", "脸书", "亚马逊", "腾讯"),
+  Company = c("Apple", "Google", "Facebook", "Amozon", "Tencent"),
+  Sale2013 = c(5000, 3500, 2300, 2100, 3100),
+  Sale2014 = c(5050, 3800, 2900, 2500, 3300),
+  Sale2015 = c(5050, 3800, 2900, 2500, 3300),
+  Sale2016 = c(5050, 3800, 2900, 2500, 3300)
+  )  %>% melt(id.vars = c("Company", "Name"), variable.name = "Year", value.name = "Sale")
+```
+
+```{r}
+# 单序列翻转
+ggplot(data = mydata[mydata$Year == "Sale2016", ],
+       mapping = aes(x = Company, y = Sale, fill = Company)) +
+    geom_bar(stat = "identity", position = "identity") +
+    coord_flip(expand = TRUE) +
+    scale_x_discrete()
+
+ggplot(data = mydata[mydata$Year == "Sale2016", ],
+       mapping = aes(x = Company, y = Sale, fill = Company)) +
+    geom_bar(stat = "identity", position = "identity") +
+    coord_flip(expand = FALSE) +
+    scale_x_discrete()
+```
+
+
+```{r}
+# 多序列翻转
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    coord_flip(expand = FALSE) +
+    scale_x_discrete()
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "stack") +
+    coord_flip(expand = FALSE) +
+    scale_x_discrete()
+```
+
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = 1, fill = cut)) +
+    geom_bar(width = 1) +
+    coord_polar(
+        theta = "y",
+        start = 0,
+        direction = 1
+    )
+
+ggplot(data = diamonds, mapping = aes(x = 1, fill = cut)) +
+    geom_bar(width = 1, position = "stack") +
+    coord_polar(
+        theta = "y",
+        start = 0,
+        direction = 1
+    )
+
+
+ggplot(data = diamonds, mapping = aes(x = 1, fill = cut)) +
+    geom_bar(width = 1, position = "stack") +
+    coord_polar(
+        theta = "x",
+        start = 0,
+        direction = 1
+    )
+```
+
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut)) +
+    geom_bar(width = 1, fill = "steelblue", colour = "white") +
+    coord_polar(theta = "y", start = 0)
+
+ggplot(data = diamonds, mapping = aes(x = cut)) +
+    geom_bar(width = 1, fill = "#3182BD") +
+    coord_polar(theta = "x", start = 0)
+```
+
+
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = color, fill = cut)) +
+    geom_bar(width = 0.95, colour = "white", position = "dodge") +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = diamonds, mapping = aes(x = color, fill = cut)) +
+    geom_bar(width = 0.95, colour = "white", position = "stack") +
+    coord_polar(theta = "x", start = 0)
+
+
+ggplot(data = diamonds, mapping = aes(x = color, fill = cut)) +
+    geom_bar(width = 0.95, colour = "white", position = "dodge") +
+    coord_polar(theta = "y", start = 0)
+
+ggplot(data = diamonds, mapping = aes(x = color, fill = cut)) +
+    geom_bar(width = 0.95, colour = "white", position = "stack") +
+    coord_polar(theta = "y", start = 0)
+```
+
+
+```{r}
+library(plyr)
+library(mapdata)
+library(maps)
+
+world_map = map_data("world")
+
+ggplot(data = world_map, mapping = aes(x = long, y = lat, group = group)) +
+    geom_path(colour = "grey") +
+    labs(title = "World Map")
+
+ggplot(data = world_map, mapping = aes(x = long, y = lat, group = group)) +
+    geom_polygon(mapping = aes(fill = region), colour = "black") +
+    geom_path(colour = "grey") +
+    labs(title = "World Map") +
+        guides(fill = FALSE)
+
+ggplot(data = world_map, mapping = aes(x = long, y = lat, group = group)) +
+    geom_polygon(mapping = aes(fill = region), colour = "black") +
+    geom_path(colour = "grey") +
+    labs(title = "World Map") +
+        guides(fill = FALSE) +
+    coord_map("ortho", orientation = c(30, # 纬度
+                                       110,# 经度
+                                       0))
+```
+
+
+#### 4.5 主题封装与自定义
+
+* 常见主题修改函数
+    - 主题函数
+        - theme()
+    - 获取当前默认主题(激活主题)
+        - theme_get()
+    - 设置新主题(同时静默返回旧主题以便还原系统默认主题)
+        - theme_set(new)
+    - 增量更新主题(内部使用:theme_get() + theme())
+        - theme_update()
+    - 全量更新主题(内部使用:theme_get() + %+replace% theme())
+        - theme_replace(
+        - e1 %+replace% e2
+        )
+* 主题元素函数
+    - element_text()
+    - element_rect()
+    - element_line()
+    - element_blank()
+
+
+
+```{r}
+mydata <- data.frame(
+  Name = c("苹果", "谷歌", "脸书", "亚马逊", "腾讯"),
+  Company = c("Apple", "Google", "Facebook", "Amozon", "Tencent"),
+  Sale2013 = c(5000, 3500, 2300, 2100, 3100),
+  Sale2014 = c(5050, 3800, 2900, 2500, 3300),
+  Sale2015 = c(5050, 3800, 2900, 2500, 3300),
+  Sale2016 = c(5050, 3800, 2900, 2500, 3300)
+  )  %>% melt(id.vars = c("Company", "Name"), variable.name = "Year", value.name = "Sale")
+```
+
+
+```{r}
+# 默认主题
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity") +
+    theme_gray()
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity") +
+    theme_grey()
+```
+
+```{r}
+default_theme = theme_get()
+# windowsFonts(myFont = windowsFont("微软雅黑"))
+
+theme_xmf = theme_replace(
+    # text,
+    # rect,
+    # line,
+    # title,
+    plot.title = element_text(size = 20, 
+                              # family = "myFont", 
+                              hjust = 0, lineheight = 2),
+    plot.subtitle = element_text(size = 15, 
+                                 # family = "myFont",
+                                 hjust = 0, lineheight = 2),
+    plot.caption = element_text(size = 18, 
+                                # family = "myFont", 
+                                hjust = 0, lineheight = 2),
+    plot.background = element_rect(fill = "#efefef", size = 0.8, linetype = 3, colour = "grey"),
+    # plot.spacing,
+    plot.margin = margin(10, 5, 10, 5, unit = "pt"),
+    panel.background = element_rect(fill = "#d4dee7", size = 2, linetype = 3, colour = "grey"),
+    panel.border = element_blank(),
+    # panel.spacing,
+    panel.grid.major = element_line(linetype = "dashed"),
+    panel.grid.minor = element_blank(),
+    # panel.grid.major.x,
+    # panel.grid.minor.x,
+    # panel.grid.major.y,
+    # panel.grid.minor.y,
+    # axis.title,
+    # axis.title.x,
+    # axis.title.y,
+    axis.text = element_text(size = 10, colour = "#003087"
+                             # , family = "myFont"
+                             ),
+    # axis.text.x, 
+    # axis.text.y,
+    axis.line = element_line(size = 1.2, colour = "black", linetype = 1),
+    # axis.line.x,
+    # axis.line.y,
+    # axis.ticks,
+    # axis.ticks.x,
+    # axis.ticks.y,
+    # axis.ticks.length,
+    # axis.ticks.marigin,
+    legend.position = "top",
+    legend.text = element_text(size = 9, colour = "#003087"
+                               # , family = "myFont"
+                               ),
+    # legend.text.align,
+    # legend.text.title,
+    # legend.text.title.align,
+    # legend.background,
+    # legend.margin,
+    # legend.spacing,
+    # legend.spacing.x,
+    # legend.spacing.y,
+    legend.key = element_blank()
+    # strip.text,
+    # strip.text.x,
+    # strip.text.y
+)
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity") +
+    scale_fill_brewer(palette = "Blues") +
+    guides(fill = guide_legend(reverse = TRUE)) +
+    labs(title = "这里是主标题",
+         subtitle = "这里是副标题",
+         caption = "这里是备注") +
+    theme_xmf
+theme_set(default_theme)
+```
+
+
+```{r}
+default_theme = theme_get()
+theme_manual = function() {
+    theme_get() %+replace% theme(
+        # text,
+        # rect,
+        # line,
+        # title,
+        plot.title = element_text(size = 20, 
+                                  # family = "myFont", 
+                                  hjust = 0, lineheight = 2),
+        plot.subtitle = element_text(size = 15, 
+                                     # family = "myFont",
+                                     hjust = 0, lineheight = 2),
+        plot.caption = element_text(size = 18, 
+                                    # family = "myFont", 
+                                    hjust = 0, lineheight = 2),
+        plot.background = element_rect(fill = "#efefef", size = 0.8, linetype = 3, colour = "grey"),
+        # plot.spacing,
+        plot.margin = margin(10, 5, 10, 5, unit = "pt"),
+        panel.background = element_rect(fill = "#d4dee7", size = 2, linetype = 3, colour = "grey"),
+        panel.border = element_blank(),
+        # panel.spacing,
+        panel.grid.major = element_line(linetype = "dashed"),
+        panel.grid.minor = element_blank(),
+        # panel.grid.major.x,
+        # panel.grid.minor.x,
+        # panel.grid.major.y,
+        # panel.grid.minor.y,
+        # axis.title,
+        # axis.title.x,
+        # axis.title.y,
+        axis.text = element_text(size = 10, colour = "#003087"
+                                 # , family = "myFont"
+                                 ),
+        # axis.text.x, 
+        # axis.text.y,
+        axis.line = element_line(size = 1.2, colour = "black", linetype = 1),
+        # axis.line.x,
+        # axis.line.y,
+        # axis.ticks,
+        # axis.ticks.x,
+        # axis.ticks.y,
+        # axis.ticks.length,
+        # axis.ticks.marigin,
+        legend.position = "top",
+        legend.text = element_text(size = 9, colour = "#003087"
+                                   # , family = "myFont"
+                                   ),
+        # legend.text.align,
+        # legend.text.title,
+        # legend.text.title.align,
+        # legend.background,
+        # legend.margin,
+        # legend.spacing,
+        # legend.spacing.x,
+        # legend.spacing.y,
+        legend.key = element_blank()
+        # strip.text,
+        # strip.text.x,
+        # strip.text.y
+    )
+}
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity") +
+    scale_fill_brewer(palette = "Blues") +
+    guides(fill = guide_legend(reverse = TRUE)) +
+    labs(title = "这里是主标题",
+         subtitle = "这里是副标题",
+         caption = "这里是备注") +
+    theme_manual()
+theme_set(default_theme)
+```
+
+
+
+## **5.R语言与数据可视化用色规范与标准**
+
+* 5.1 R语言基础预设配色系统
+* 5.2 ggplot2配色系统扩展包接口调用
+* 5.3 R语言RColorBrewer在线配色网站及其包封装函数
+* 5.4 ggthemes主题包简介
+* 5.5 其他几种扩展配色扩展包简介(ggthemes,ggtech,ggthemer)
+
+
+#### 5.1 R语言基础预设配色系统
+
+* 基础预设色
+    - colors()[]
+* 五大预设调色板
+    - rainbow(n)
+    - heat.colors(n)
+    - terrain.colors(n)
+    - topo.colors(n)
+    - cm.colors(n)
+* 自定义组合调色板
+    - colorRampPalette(c("red", "green"))(n)
+* 灰度调色板
+    - gray(0:n/n)[]
+* hsv自定义调色板
+    - hsv(h = 1, s = 1, v = 1, alpha)[1:n]
+* scale_fill_manual(values = sample(mycolor, n))
+    - limits
+    - breaks
+    - labels
+    - values
+* 默认情况下显示的颜色与分类变量子类别顺序如何匹配，是否可以自定义
+    - 1.如果分类变量不是有序因子变量 ：
+        - 默认情况下value顺序与类别变量的名称首字母顺序一一对应
+        - 如果value对应的色轴向量是一个命名向量，且名称为类别变量的类别名称，则最终颜色会与类别一一对应
+    - 2.有序因子变量情况下，图例顺序与颜色顺序一致，与因子顺序(自上而下，由地到高)
+
+#### 5.1.1 基础预设色
+
+```{r}
+library(scales)
+library(ggplot2)
+```
+
+```{r}
+colors()
+show_col(colors(), labels = FALSE)
+show_col(sample(colors(), 100), labels = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(stat = "identity", fill = "steelblue")
+
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity")
+
+# set.seed(1234)
+palette = sample(colors(), 7)
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = palette)
+
+length(unique(mpg$class))
+length(palette)
+```
+
+#### 5.1.2 五大预设调色板
+
+```{r}
+par(mfrow = c(1, 5), mar = c(0.5, 0.5, 2.0, 0.5), xaxs = "i", yaxs = "i")
+n = 1000
+barplot(rep(1, times = n), 
+        col = rainbow(n),
+        border = rainbow(n),
+        horiz = FALSE,
+        axes = FALSE,
+        main = "Rainbow Color")
+barplot(rep(1, times = n), 
+        col = heat.colors(n),
+        border = heat.colors(n),
+        horiz = FALSE,
+        axes = FALSE,
+        main = "Heat Colors")
+barplot(rep(1, times = n), 
+        col = terrain.colors(n),
+        border = terrain.colors(n),
+        horiz = FALSE,
+        axes = FALSE,
+        main = "Terrain Colors")
+barplot(rep(1, times = n), 
+        col = topo.colors(n),
+        border = topo.colors(n),
+        horiz = FALSE,
+        axes = FALSE,
+        main = "Topo Colors")
+barplot(rep(1, times = n), 
+        col = cm.colors(n),
+        border = cm.colors(n),
+        horiz = FALSE,
+        axes = FALSE,
+        main = "Cm Colors")
+dev.off()
+```
+
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = rainbow(7))
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = heat.colors(7))
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = terrain.colors(7))
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = topo.colors(7))
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = cm.colors(7))
+```
+
+#### 5.1.3 colorRampPalette函数自定义色板
+
+```{r}
+palette = colorRampPalette(c("red", "green", "orange", "blue", "yellow"))
+show_col(palette(10), labels = FALSE)
+show_col(palette(100), labels = FALSE)
+show_col(palette(1000), labels = FALSE)
+show_col(palette(10000), labels = FALSE)
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = palette(n = 7))
+```
+
+
+#### 5.1.4 gray()
+
+```{r}
+show_col(gray(0:1000/1000), labels = FALSE)
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = gray(1:7/7))
+```
+
+#### 5.1.5 hsv函数
+
+```{r}
+x = seq(1, 4) / 4
+ndx = expand.grid(x, x, x)
+mycolor = hsv(h = ndx[, 3], s = ndx[, 2], ndx[, 1], alpha = 0.5)
+show_col(mycolor, labels = FALSE)
+
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = sample(mycolor, 7))
+```
+
+#### 5.1.5 颜色与分类变量子类别顺序匹配
+
+#### 分类变量不是有序变量
+
+```{r}
+mydata = data.frame(
+    name = LETTERS[1:5],
+    value = runif(5, 1, 100)
+)
+
+color = colors()[sample(1:100, 5)]
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_manual(values = color)
+
+unique(mydata$name)
+color
+show_col(color, labels = FALSE)
+```
+
+
+```{r}
+color = c("red", "grey", "orange", "yellow", "green")
+names(color) = LETTERS[sample(1:5, 5)]
+
+color = c("A" = "red", "B" = "grey", "C" = "orange", "D" = "yellow", "E" = "green")
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_manual(values = color)
+names(color)
+show_col(color, labels = TRUE)
+```
+
+
+#### 分类变量是有序变量
+
+```{r}
+color = c("red", "grey", "orange", "yellow", "green")
+show_col(color, labels = TRUE)
+
+mydata$class = ordered(mydata$name, levels = LETTERS[c(3, 2, 1, 5, 4)])
+mydata
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = class), stat = "identity") +
+    scale_fill_manual(values = color)
+
+show_col(color, labels = TRUE)
+```
+
+#### 5.2 ggplot2配色系统扩展包接口调用
+
+* 配色函数接口
+    - colorBrewer
+    - 离散颜色组合色板
+        - scale_fill/colour_brewer(type = seq/div/qual,
+                                   direction,
+                                   palette)
+    - 离散颜色转化为连续化色彩空间
+        - scale_fill/colour_distiller(type = seq/div/qual,
+                                      direction,
+                                      palette)
+* scales::brewer_pal()
+    - brewer_pal(type = "seq/div/qual", palette = 1/"name", direction = 1/-1)
+
+
+```{r}
+mydata = data.frame(
+    name = LETTERS[1:6],
+    value = runif(6, 1, 100)
+)
+```
+
+#### 5.2.1 使用type + index进行制定色盘
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(type = "seq", palette = 1, direction = 1)
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(type = "div", palette = 1, direction = 1)
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(type = "qual", palette = 1, direction = 1)
+```
+
+
+#### 5.2.2 使用name指定色盘
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(palette = "Blues", direction = 1)
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(palette = "BuGn", direction = 1)
+```
+ 
+#### 5.2.3 色盘顺序指定-direction
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(palette = "Greens", direction = 1)
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_brewer(palette = "Greens", direction = -1)
+```
+
+#### 5.2.4 离散色盘连续化封装函数-scale_fill_distiller()
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = value), stat = "identity") +
+    scale_fill_distiller(palette = "Greens", direction = 1)
+```
+
+
+#### 5.2.5 scales::brewer_pal()
+
+```{r}
+library(scales)
+show_col(brewer_pal()(9))
+show_col(brewer_pal("div")(5))
+show_col(brewer_pal(palette = "Greens")(5))
+
+cols = brewer_pal("div")(5)
+show_col(gradient_n_pal(cols)(seq(0, 1, length.out = 30)))
+show_col(gradient_n_pal(cols)(seq(0, 1, length.out = 1000)), labels = FALSE, borders = NA)
+```
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_manual(values = brewer_pal()(6))
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_manual(values = brewer_pal(direction = -1)(6))
+```
+
+
+#### 5.3 R语言RColorBrewer在线配色网站及其包封装函数
+
+> [ColorBrewer](http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3)
+> RColorBrewer
+
+```{r}
+library(RColorBrewer)
+display.brewer.all(type = "all")
+display.brewer.all(type = "seq")
+display.brewer.all(type = "div")
+display.brewer.all(type = "qual")
+```
+
+
+```{r}
+display.brewer.pal(n = 9, name = "BuGn")
+brewer.pal(9, "BuGn")
+```
+
+```{r}
+par(mfrow = c(1, 5), mar = c(1, 1, 2, 1), xaxs = "i", yaxs = "i")
+mycolors = brewer.pal(n = 9, name = "BuGn")
+n = 9
+barplot(rep(1, times = n), 
+        col = mycolors,
+        border = mycolors,
+        horiz = FALSE,
+        axes = TRUE,
+        main = "Mycolor of BuGn")
+mycolors = brewer.pal(n = 9, name = "OrRd")
+barplot(rep(1, times = n), 
+        col = mycolors,
+        border = mycolors,
+        horiz = FALSE,
+        axes = TRUE,
+        main = "Mycolor of OrRd")
+mycolors = brewer.pal(n = 9, name = "YlGn")
+barplot(rep(1, times = n), 
+        col = mycolors,
+        border = mycolors,
+        horiz = FALSE,
+        axes = TRUE,
+        main = "Mycolor of YlGn")
+mycolors = brewer.pal(n = 9, name = "Oranges")
+barplot(rep(1, times = n), 
+        col = mycolors,
+        border = mycolors,
+        horiz = FALSE,
+        axes = TRUE,
+        main = "Mycolor of Oranges")
+mycolors = brewer.pal(n = 9, name = "Blues")
+barplot(rep(1, times = n), 
+        col = mycolors,
+        border = mycolors,
+        horiz = FALSE,
+        axes = TRUE,
+        main = "Mycolor of Blues")
+dev.off()
+```
+
+# 组合色板
+
+
+```{r}
+b1 = brewer.pal(n = 9, name = "BuGn")
+b2 = brewer.pal(n = 9, name = "Blues")
+c = c(b1[c(1, 3, 5, 7, 9)], b2[c(2, 4, 6, 8)])
+show_col(c, labels = FALSE)
+```
+
+```{r}
+c = c(50, 30, 50, 70, 90, 40)
+names(c) = LETTERS[1:6]
+
+library(plyr)
+mydata = data.frame(c)
+ggplot(data = mydata, mapping = aes(x = factor(1), y = c, fill = row.names(mydata))) +
+    geom_bar(stat = "identity", width = 1, col = "white") +
+    coord_polar(theta = "y", start = 0) +
+    scale_fill_brewer(palette = "Greens") +
+    guides(fill = guide_legend(title = NULL)) +
+    theme_void()
+```
+
+
+
+#### 5.4 ggthemes主题包简介
+
+* 标度调整函数
+* 提取色板
+* 提取配色
+
+#### 5.4.1 标度调整函数
+
+```{r, eval=FALSE}
+scale_colour_economist(stata = FALSE, ...)
+scale_colour_wsj(stata = FALSE, ...)
+scale_fill_economist(stata = FALSE, ...)
+```
+
+#### 5.4.2 提取色板
+
+```{r}
+library(ggthemes)
+m1 = economist_pal()(6)
+show_col(m1)
+```
+
+#### 5.4.3 提取配色
+
+```{r}
+ggthemes_data$economist
+show_col(ggthemes_data$economist$bg)
+show_col(ggthemes_data$economist$fg)
+show_col(ggthemes_data$economist$stata)
+show_col(ggthemes_data$economist$stata$bg)
+show_col(ggthemes_data$economist$stata$fg)
+
+ggthemes_data$excel
+ggthemes_data$excel$line
+ggthemes_data$excel$fill
+ggthemes_data$excel$new
+
+ggthemes_data$solarized
+ggthemes_data$solarized$base
+ggthemes_data$solarized$accents
+
+ggthemes_data$stata
+ggthemes_data$stata$colors
+show_col(ggthemes_data$stata$colors)
+ggthemes_data$stata$shapes
+ggthemes_data$stata$linetypes
+
+
+ggthemes_data$few
+ggthemes_data$few$medium
+ggthemes_data$few$dark
+ggthemes_data$few$light
+
+ggthemes_data$ptol
+ggthemes_data$ptol$qualitative
+
+ggthemes_data$tableau
+ggthemes_data$tableau$colors
+ggthemes_data$tableau$sequential
+ggthemes_data$tableau$diverging
+ggthemes_data$tableau$shapes
+
+ggthemes_data$wsj
+show_col(ggthemes_data$wsj$bg)
+show_col(ggthemes_data$wsj$palettes$rgby)
+show_col(ggthemes_data$wsj$palettes$red_green)
+show_col(ggthemes_data$wsj$palettes$black_green)
+show_col(ggthemes_data$wsj$palettes$dem_rep)
+show_col(ggthemes_data$wsj$palettes$colors6)
+
+ggthemes_data$calc
+ggthemes_data$calc$colors
+ggthemes_data$calc$shapes
+
+ggthemes_data$hc
+ggthemes_data$hc$palettes
+ggthemes_data$hc$palettes$default
+ggthemes_data$hc$palettes$darkunica
+ggthemes_data$hc$bg
+```
+
+#### 5.4.4 例子
+
+```{r}
+c = c(50, 30, 50, 70, 90, 40)
+names(c) = LETTERS[1:6]
+mydata = data.frame(c)
+mydata$class = row.names(mydata)
+```
+
+#### 经济学人色板
+
+```{r}
+m1 = economist_pal()(6)
+show_col(m1)
+ggplot(data = mydata, mapping = aes(x = factor(1), y = c, fill = class)) +
+    geom_bar(stat = "identity", width = 1, colour = "white") +
+    coord_polar(theta = "y", start = 0) +
+    theme(panel.grid = element_blank(),
+          panel.background = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank()) +
+    scale_fill_economist() +
+    guides(fill = guide_legend(reverse = TRUE, title = NULL))
+```
+
+#### 华尔街日报
+
+```{r}
+m2 = wsj_pal()(6)
+show_col(m2)
+ggplot(data = mydata, mapping = aes(x = factor(1), y = c, fill = class)) +
+    geom_bar(stat = "identity", width = 1, col = "white") +
+    coord_polar(theta = "y", start = 0) +
+    theme(panel.grid = element_blank(),
+          panel.background = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank()) +
+    scale_fill_wsj() +
+    guides(fill = guide_legend(reverse = TRUE, title = NULL))
+```
+
+
+
+```{r}
+mydata = data.frame(
+    name = LETTERS[1:6],
+    value = runif(6, 1, 100)
+)
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_economist() +
+    theme_economist()
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_economist()
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    theme_economist()
+
+
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_wsj() +
+    theme_wsj()
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    scale_fill_wsj()
+
+ggplot(data = mydata, mapping = aes(x = name, y = value)) +
+    geom_bar(mapping = aes(fill = name), stat = "identity") +
+    theme_wsj()
+```
+
+
+#### 5.5 其他几种扩展配色扩展包简介(ggthemes,ggtech,ggthemer)
+
+* ggtech
+    - scale_fill_tech(theme = "aribnb") + theme_airbnb_fancy()
+    - scale_fill_tech(theme = "facebook") + theme_tech(theme = "facebook")
+    - scale_fill_tech(theme = "twitter") + theme_tech(theme = "twitter")
+* ggthemer
+    - ggthemr("dist")
+    - ggplot() + geom_bar()
+    - ggthemr_reset()
+* ggsci
+    - scale_colour_simpsons()
+
+```{r, eval=FALSE}
+devtools::install_github("ricardo-bion/ggtech", dependencies=TRUE)
+devtools::install_github('cttobin/ggthemr')
+install.packages("ggsci")
+library(ggtech)
+library(ggthemer)
+library(ggsci)
+```
+
+
+
+
+## **6.ggplot2笛卡尔坐标系应用**
+
+### 目录
+
+* 6.1 笛卡尔坐标系主要图标类型
+* 6.2 柱形图、条形图数据描述
+* 6.3 美学映射参数书写规则
+* 6.4 位置调整参数应用规则
+* 6.5 图形数据标签位置调整规则
+* 6.6 图形颜色映射规则与因子变量的意义
+* 6.7 笛卡尔坐标系下的分面应用
+* 6.8 散点图、气泡图、折线图、面积图、箱线图、直方图案例
+
+
+### **6.1 笛卡尔坐标系主要图标类型**
+
+
+#### (1) [选择合适的图标类型](http://extremepresentation.typepad.com/files/choosing-a-good-chart-09.pdf)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/cartesian_charts.PNG)
+
+
+* 比较[维度(类别变量)]
+    - 柱形图(条形图)
+    - 折线图
+    - 雷达图
+* 分布[度量(数值变量)]
+    - 直方图
+    - 箱线图
+    - 密度曲线图
+    - 散点图
+    - 曲面图
+* 构成[维度(类别变量)]
+    - 瀑布图
+    - 饼图
+    - 百分比堆积图(柱形图、面积图)
+* 联系(趋势)[度量(数值变量)]
+    - 散点图
+    - 气泡图
+
+#### (2) 笛卡尔坐标系主要图标类型
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/charts_coord.PNG)
+
+### **6.2 柱形图、条形图数据描述**
+
+#### (1) 
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/bar.PNG)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/line.PNG)
+
+### **6.3 美学映射参数书写规则**
+
+#### (1) ggplot与geom对象之间的关系
+
+> ```
+> ggplot(data = NULL, mapping = aes()) +
+>     geom_xxx(data = NULL, mapping = aes())
+> ```
+
+* ggplot()是ggplot2图形对象的初始化函数，相当于整个画板的画布，也可以理解为父函数；
+    - ggplot()内有data, mapping两个主要参数对象，这两个参数具有全局优先级，可以被之后的所有geom对象所继承(前提是geom_xxx()内未指定相关参数)；
+* geom_xxx()是几何对象，以geom开头的所有函数都代表着一个单独的图层类型，相当于画布上的层层画像也可以理解为子函数；
+    - geom_xxx()对象内同样有data, mapping参数，但geom_xxx()内的data和mapping参数属于局部参数，仅作用于geom_xxx()内部。
+
+#### (2) ggplot与geom对象参数共享问题
+
+参数共享分为三种情况：
+
+* 所有图层对象(geom_xxx())共享相同数据源(data)和美学映射(mapping)；
+* 所有图层对象共享部分数据源；
+* 个图层对象均使用独立的数据源；
+
+
+#### (3) ggplot与geom对象美学映射参数位置问题
+
+* 美学映射参数位置何时应该在aes内部，何时应该在aes外部？
+    - 共性映射与个性映射
+        - 当指定的美学映射参数需要进行个性化映射时（即一一映射），应该写在aes函数内部，即每一个观测值都会按照我们指定的特定变量值进行个性化设定；
+        - 当需要统一设定某些图表元素对象（共性，统一化）时，此时应该将其参数指定在aes函数外部，即所有观测值都会按照统一属性进行映射；
+
+
+### **6.4 位置调整参数应用规则**
+
+#### (1) 位置调整分类
+
+* Position是每一个图层均存在的位置调整参数(在有些几何对象中并不适用)
+    - identity: 不做任何位置调整
+    - stack: 垂直堆叠放置(堆积柱形图)
+    - dodge: 水平抖动放置(簇状柱形图)
+    - fill: 百分比(垂直堆叠放置，如百分比堆积面积图， 百分比堆积柱形图)
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/position_func.PNG)
+
+#### (2) 例子
+
+
+```{r}
+data = data.frame(Company = c("Apple", "Google", "Facebook", "Amazon", "Tencent"),
+                  Sale2015 = c(5000, 3500, 2300, 2100, 3100),
+                  Sale2016 = c(5050, 3800, 2900, 2500, 3300))
+
+library(reshape2)
+library(ggplot2)
+
+mydata = melt(data, id.vars = "Company", variable.name = "Year", value.name = "Sale")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", alpha = 0.5)
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", position = "identity", alpha = 0.5)
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = position_identity(), alpha = 0.5)
+
+```
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", position = "dodge")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", position = position_dodge(0.8))
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_dodge(0.8))
+```
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = "stack")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_stack(reverse = TRUE))
+```
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = "fill")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_fill(reverse = TRUE))
+```
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_stack(reverse = TRUE)) + 
+    facet_wrap(~ Year)
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_stack(reverse = TRUE)) + 
+    facet_grid(Year ~.)
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) + 
+    geom_bar(stat = "identity", 
+             width = 0.9, 
+             position = position_stack(reverse = TRUE)) + 
+    facet_grid(.~ Year)
+```
+
+### **6.5 图形数据标签位置调整规则**
+
+```
+geom_text(data = NULL,
+          mapping = aes(x = ,
+                        y = ,
+                        label =,
+                        alpha, 
+                        angle,
+                        colour,
+                        size,
+                        group,
+                        family,
+                        fontface,
+                        hjust,
+                        vjust,
+                        lineheight),
+          stat = "identity",
+          position = "identity"
+)
+geom_label()
+```
+
+#### 例子
+
+```{r}
+data <- data.frame(Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+                   Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+                   Sale2013 = c(5000,3500,2300,2100,3100),
+                   Sale2014 = c(5050,3800,2900,2500,3300),
+                   Sale2015 = c(5050,3800,2900,2500,3300),
+                   Sale2016 = c(5050,3800,2900,2500,3300))
+mydata <- melt(data, 
+               id.vars = c("Name", "Company"),
+               variable.name = "Year",
+               value.name = "Sale")
+mydata
+```
+
+```{r}
+library(ggthemes)
+
+ggplot(data = data, mapping = aes(x = Company, y = Sale2016, fill = Company)) +
+    geom_bar(stat = "identity") +
+    scale_fill_wsj() + 
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+
+ggplot(data = data, mapping = aes(x = Company, y = Sale2016, fill = Company, label = Sale2016)) +
+    geom_bar(stat = "identity") +
+    scale_fill_wsj() + 
+    geom_text(mapping = aes(x = Company, y = Sale2016, label = Sale2016),
+              position = position_dodge(0.9),
+              vjust = -0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+ggplot(data = data, mapping = aes(x = Company, y = Sale2016, fill = Company, label = Sale2016)) +
+    geom_bar(stat = "identity") +
+    scale_fill_wsj() + 
+    geom_text(position = position_dodge(0.9),
+              vjust = -0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+```
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_wsj("rgby", "") + 
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(mapping = aes(y = Sale + 0.05),
+              position = position_dodge(0.9),
+              vjust = - 0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(position = position_dodge(0.9),
+              vjust = - 0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+```
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year)) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_fill_wsj("rgby", "") + 
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(mapping = aes(y = Sale + 0.05),
+              position = position_stack(),
+              vjust = - 0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(position = position_stack(),
+              vjust = - 0.5) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+```
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(position = position_dodge(0.9),
+              vjust = -0.05) +
+    facet_grid(.~ Year) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_wsj("rgby", "") + 
+    geom_text(vjust = -0.05) +
+    facet_grid(.~ Year) +
+    ggtitle("The Financial Performance of Five Giant") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"),
+          axis.title = element_blank(),
+          legend.position = "none")
+```
+
+
+### **6.6 图形颜色映射规则与因子变量的意义**
+
+* 普通类别型变量在美学映射中顺序会被自动还原为英文字母顺序排列(图例中自上而下排列)
+* 有序因子变量则按照因子大小顺序自上而下由大到小顺序呈现
+
+```{r}
+library(scales)
+library(RColorBrewer)
+```
+```{r}
+data <- data.frame(Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+                   Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+                   Sale2013 = c(5000,3500,2300,2100,3100),
+                   Sale2014 = c(5050,3800,2900,2500,3300),
+                   Sale2015 = c(5050,3800,2900,2500,3300),
+                   Sale2016 = c(5050,3800,2900,2500,3300))
+mydata <- melt(data, 
+               id.vars = c("Name", "Company"),
+               variable.name = "Year",
+               value.name = "Sale")
+mydata
+
+ggplot(data = data, mapping = aes(x = Company, y = Sale2013, fill = Company)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(mapping = aes(y = Sale2013, label = Sale2013), position  = "stack", vjust = 1) +
+    scale_fill_manual(values = c("#D3BA68", "#D5695D", "#5D8CA8", "#65A479", "#EA4335")) +
+    ggtitle("The Finacial Performance of Five Giant")
+
+
+ggplot(data = data, mapping = aes(x = Company, y = Sale2013, fill = Company)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(mapping = aes(y = Sale2013, label = Sale2013), position  = "stack", vjust = 1) +
+    scale_x_discrete(limits = c("Tencent", "Google", "Facebook", "Apple", "Amozon"), 
+                      labels = c("Tencent", "Google", "Facebook", "Apple", "Amozon")) +
+    scale_fill_manual(limits = c("Tencent", "Google", "Facebook", "Apple", "Amozon"), 
+                      values = c("#D3BA68", "#D5695D", "#5D8CA8", "#65A479", "#EA4335")) +
+    ggtitle("The Finacial Performance of Five Giant")
+
+data1 = data
+data1$Company1 = factor(data1$Company, levels = c("Tencent", "Google", "Facebook", "Apple", "Amozon"), ordered = TRUE)
+
+ggplot(data = data1, mapping = aes(x = Company1, y = Sale2013, fill = Company1)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(mapping = aes(y = Sale2013, label = Sale2013), position  = "stack", vjust = 1) +
+    scale_fill_manual(values = c("#D3BA68", "#D5695D", "#5D8CA8", "#65A479", "#EA4335")) +
+    ggtitle("The Finacial Performance of Five Giant")
+```
+
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = "stack", vjust = 1) +
+    scale_fill_manual(values = c("#D3BA68", "#D5695D", "#5D8CA8", "#65A479", "#EA4335")) +
+    ggtitle("The Financial Performance of Five Giant")
+
+mydata$Year1 = factor(mydata$Year, 
+                      levels = c("Sale2016", "Sale2015", "Sale2014", "Sale2013"),
+                      ordered = TRUE)
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year1, label = Sale)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = "stack", vjust = 1) +
+    scale_fill_manual(values = c("#D3BA68", "#D5695D", "#5D8CA8", "#65A479", "#EA4335")) +
+    ggtitle("The Financial Performance of Five Giant")
+```
+
+
+### **6.7 笛卡尔坐标系下的分面应用**
+
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none") 
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    coord_flip() +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none") 
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_grid(.~ Year) +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none") 
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_grid(.~ Year) +
+    coord_flip() +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none") 
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_grid(Year ~.) +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none")
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_grid(Year ~.) +
+    coord_flip() +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none") 
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_wrap(~ Year) +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none")
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, fill = Year, label = Sale)) +
+geom_bar(stat = "identity", position = "dodge") +
+    geom_text(mapping = aes(y = Sale + 0.05), position = position_dodge(0.8), vjust = 1) +
+    scale_fill_wsj("rgby", "") +
+    facet_wrap(~ Year) +
+    coord_flip() +
+    ggtitle("") +
+    theme_wsj() +
+    theme(axis.ticks.length = unit(0.5, "cm"), 
+          axis.title = element_blank(),
+          legend.position = "none")
+```
+
+
+### **6.8 散点图、气泡图、折线图、面积图、箱线图、直方图案例**
+
+
+#### 6.8.1 geom_blank()
+
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg))
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_blank()
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_blank(mapping = NULL, data = NULL, stat = "identity", position = "identity")
+```
+
+
+
+
+
+
+#### (2) 折线图
+
+```{r}
+data <- data.frame(Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+                   Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+                   Sale2013 = c(5000,3500,2300,2100,3100),
+                   Sale2014 = c(5050,3800,2900,2500,3300),
+                   Sale2015 = c(5050,3800,2900,2500,3300),
+                   Sale2016 = c(5050,3800,2900,2500,3300))
+mydata <- melt(data, 
+               id.vars = c("Name", "Company"),
+               variable.name = "Year",
+               value.name = "Sale")
+mydata
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, colour = Year)) +
+    geom_line()
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, group = Year)) +
+    geom_line()
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, group = Year, colour = Year)) +
+    geom_line() +
+    geom_point()
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, group = Year)) +
+    geom_line(mapping = aes(colour = Year)) +
+    geom_point(mapping = aes(colour = Year)) +
+    geom_text(mapping = aes(label = Sale))
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, group = Year, colour = Year)) +
+    geom_line() +
+    geom_point() +
+    geom_text(mapping = aes(label = Sale))
+
+
+ggplot(data = mydata, mapping = aes(x = Company, y = Sale, group = Year, colour = Year)) +
+    geom_line() +
+    geom_point() +
+    geom_text(mapping = aes(label = Sale)) +
+    facet_grid(.~ Year)
+```
+
+
+#### (3) 面积图
+
+```{r}
+library(tidyr)
+
+mydata = data.frame(
+    date = 2014:2018,
+    GMV_A = runif(5, 1000, 5000),
+    GMV_B = runif(5, 1000, 5000),
+    GMV_C = runif(5, 1000, 5000),
+    GMV_D = runif(5, 1000, 5000),
+    GMV_E = runif(5, 1000, 5000)
+) %>% gather(class, gmv, -1)
+```
+
+```{r}
+ggplot(data = mydata, mapping = aes(x = date, gmv)) +
+    geom_area(mapping = aes(fill = class))
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, group = class)) +
+    geom_area(mapping = aes(fill = class))
+
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv)) +
+    scale_fill_brewer(palette = "Blues")
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv), position = "stack") +
+    scale_fill_brewer(palette = "Blues")
+
+# 分面
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv), position = "stack") +
+    scale_fill_brewer(palette = "Blues") +
+    facet_grid(.~class)
+
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv)) +
+    scale_fill_brewer(palette = "Blues") +
+    facet_grid(.~class)
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv), position = "stack") +
+    scale_fill_brewer(palette = "Blues") +
+    facet_grid(class ~.)
+
+
+ggplot(data = mydata, mapping = aes(x = date, gmv, fill = class)) +
+    geom_area() +
+    geom_text(mapping = aes(label = gmv)) +
+    scale_fill_brewer(palette = "Blues") +
+    facet_grid(class ~.)
+```
+
+
+#### (4) 直方图
+
+```{r}
+data(diamonds)
+set.seed(42)
+dsmall = diamonds[sample(nrow(diamonds), 1000), ]
+```
+
+
+```{r}
+ggplot(data = dsmall, mapping = aes(x = price)) +
+    geom_histogram(bins = 30)
+
+ggplot(data = dsmall, mapping = aes(x = price)) +
+    geom_histogram(binwidth = 1000)
+
+ggplot(data = dsmall, mapping = aes(x = price)) +
+    geom_histogram(binwidth = 1000) +
+    facet_grid(.~cut)
+
+ggplot(data = dsmall, mapping = aes(x = price)) +
+    geom_histogram(binwidth = 1000) +
+    facet_grid(cut ~.)
+```
+
+#### (5) 箱线图
+
+
+```{r}
+ggplot(data = dsmall, mapping = aes(x = 1, y = price)) +
+    geom_boxplot()
+
+
+ggplot(data = dsmall, mapping = aes(x = cut, y = price)) +
+    geom_boxplot()
+
+
+ggplot(data = dsmall, mapping = aes(x = 1, y = price, fill = clarity)) +
+    geom_boxplot()
+
+
+ggplot(data = dsmall, mapping = aes(x = 1, y = price, fill = clarity)) +
+    geom_boxplot() +
+    facet_grid(.~ clarity)
+
+ggplot(data = dsmall, mapping = aes(x = 1, y = price, fill = clarity)) +
+    geom_boxplot() +
+    facet_grid(clarity ~.)
+```
+
+
+## 7.ggplot2极坐标系应用
+
+### 7.1 极坐标系参数转换原理
+
+#### 7.1.1 极坐标系参数转换原理
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/polar_trans.PNG)
+
+* 原理要点一
+    - ggplot2中的极坐标系不是原生坐标系，而是通过笛卡尔坐标系衍生而来的——coord_polar()
+* 原理要点二
+    - 极坐标系的转化只依赖坐标系统，不依赖任何当个图表（尽管我们平时仅仅使用它来制作饼图）
+* 原理要点三
+    - 极坐标系的转化核心思想是将笛卡尔坐标系中一个轴退化为极坐标系下的半径，一个轴退化为圆周，原有坐标系下的第三维度仍然保留
+* 原理要点四
+    - 极坐标系的转化后仍然支持所有ggplot2原生函数控制，比如标度调整系统、标签系统、图例系统、分面系统等
+
+#### 7.1.2 例子
+
+```
+coord_polar(
+    theta = "x",  # 极坐标化的中心，以每个轴为轴依据
+    start = 0,    # 序列其实角度
+    direction = 1 # 序列排列方向
+)
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+mydata <- data.frame(Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+                   Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+                   Sale2013 = c(5000,3500,2300,2100,3100),
+                   Sale2014 = c(5050,3800,2900,2500,3300),
+                   Sale2015 = c(5050,3800,2900,2500,3300),
+                   Sale2016 = c(5050,3800,2900,2500,3300)) %>% melt(id.vars = c("Name", "Company"), 
+                                                                    variable.name = "Year",
+                                                                    value.name = "Sale")
+
+
+mydata2 = diamonds[sample(nrow(diamonds), 1000), ] %>%
+    filter(!color %in% c("J", "I"))
+str(mydata2)
+```
+
+
+```{r}
+# 单序列柱形图——以x轴为中心极坐标化
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj()
+
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0)
+
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0)
+
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0, direction = -1)
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0, direction = 1)
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0, direction = -1)
+
+ggplot(data = mydata2, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0, direction = 1)
+```
+
+
+```{r}
+ggplot(data = mydata2, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj()
+
+ggplot(data = mydata2, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0, direction = 1)
+
+ggplot(data = mydata2, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0, direction = -1)
+
+
+ggplot(data = mydata2, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0, direction = 1)
+
+ggplot(data = mydata2, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0, direction = -1)
+```
+
+
+### 7.2 极坐标系衍生图标类型
+
+#### dodge
+
+```{r}
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80)
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    coord_polar(theta = "y", start = 0)
+```
+
+#### dodge facet
+
+```{r}
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut, scales = "free_y")
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut
+               # , scales = "free_x"
+               ) + 
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "dodge", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut 
+               # ,scales = "free_y"
+               ) +
+    coord_polar(theta = "y", start = 0)
+```
+
+#### stack
+
+```{r}
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj()
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0)
+```
+
+#### stack facet
+
+```{r}
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut, scales = "free_y")
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut
+               # , scales = "free_y"
+               ) +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata2, 
+       mapping = aes(x = color, y = depth, fill = cut)) +
+    geom_bar(position = "stack", colour = "transparent", stat = "identity") +
+    scale_fill_wsj() +
+    ylim(-10, 80) +
+    facet_grid(.~ cut
+               # , scales = "free_y"
+               ) +
+    coord_polar(theta = "y", start = 0)
+```
+
+### 7.3 极坐标系下的标签设定技巧
+
+* 添加标签的前提是使用汇总数据集作图（才能生成与数据源一一对应的label）
+* 保证geom_xxx()与geom_text()内部使用的position参数一致(保证几何对象位置与label位置处于同样的变换空间内)
+* Position = position_stack(vjust = .5)（保证堆积图内的label正好处于垂直居中水平）
+
+
+```{r}
+mydata3 = mydata2 %>%
+    select(cut, depth) %>%
+    group_by(cut) %>%
+    summarise(depth = sum(depth))
+mydata3
+```
+
+```{r}
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), position = position_stack(), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj()
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), position = position_stack(0.5), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj()
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, position = "stack", stat = "identity") +
+    geom_text(mapping = aes(label = depth), position = position_stack(0.5), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj()
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), position = position_stack(0.5), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj() +
+    coord_polar(theta = "x", start = 0)
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0)
+
+ggplot(data = mydata3, mapping = aes(x = "", y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), position = position_stack(0.5), stat = "identity", vjust = 0.5, hjust = 0.5) +
+    scale_fill_wsj() +
+    coord_polar(theta = "y", start = 0)
+```
+
+```{r}
+ggplot(data = mydata3, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), stat = "identity", vjust = 0.5, hjust = 0.5, position = position_stack(0.5)) +
+    scale_fill_wsj()
+
+ggplot(data = mydata3, mapping = aes(x = cut, y = depth, fill = cut)) +
+    geom_bar(width = 1, stat = "identity") +
+    geom_text(mapping = aes(label = depth), stat = "identity", vjust = 0.5, hjust = 0.5, position = position_stack(0.5)) +
+    scale_fill_wsj() +
+    ylim(-1000, 28000) +
+    coord_polar(theta = "x", start = 0)
+```
+
+
+```{r}
+mydata4 = mydata2 %>%
+    group_by(cut, color) %>%
+    summarise(depth = sum(depth))
+
+
+ggplot(data = mydata4, mapping = aes(x = cut, y = depth, fill = color)) +
+    geom_bar(width = 1, stat = "identity", position = "dodge") +
+    scale_fill_wsj() +
+    geom_text(mapping = aes(label = depth), position = position_dodge(width = 1), hjust = 0.5, vjust = 0.5)
+
+# 分面
+ggplot(data = mydata4, mapping = aes(x = cut, y = depth, fill = color)) +
+    geom_bar(width = 1, stat = "identity", position = "dodge") +
+    scale_fill_wsj() +
+    geom_text(mapping = aes(label = depth), position = position_dodge(width = 1), hjust = 0.5, vjust = 0.5) +
+    facet_grid(.~ color)
+```
+
+```{r}
+ggplot(data = mydata4, mapping = aes(x = cut, y = depth, fill = color)) +
+    geom_bar(width = 1, stat = "identity", position = "stack") +
+    scale_fill_wsj() +
+    geom_text(mapping = aes(label = depth), position = position_stack(vjust = 0.5), hjust = 0.5, vjust = 0.5) 
+
+ggplot(data = mydata4, mapping = aes(x = cut, y = depth, fill = color)) +
+    geom_bar(width = 1, stat = "identity", position = "stack") +
+    scale_fill_wsj() +
+    geom_text(mapping = aes(label = depth), position = position_stack(vjust = 0.5), hjust = 0.5, vjust = 0.5) +
+    facet_grid(.~ color)
+
+
+ggplot(data = mydata4, mapping = aes(x = cut, y = depth, fill = color)) +
+    geom_bar(width = 1, stat = "identity", position = "stack") +
+    scale_fill_wsj() +
+    geom_text(mapping = aes(label = depth), position = position_stack(vjust = 0.5), hjust = 0.5, vjust = 0.5) +
+    facet_grid(.~ color) +
+    coord_polar(theta = "x", start = 0)
+
+```
+
+
+### 7.4 极坐标系下分面操作规则
+
+
+
+
+### 7.5 极坐标系与高阶仪表盘制作思路
+
+
+
+
+### 7.6 ggplot2辅助极坐标图-雷达图
+
+
+```{r}
+if(!require(ggradar)) devtools::install_github("ricardo-bion/ggradar",dependencies=TRUE)
+
+data <- data.frame(
+  Name = c("苹果","谷歌","脸书","亚马逊","腾讯"),
+  Company = c("Apple","Google","Facebook","Amozon","Tencent"),
+  Sale2013 = c(5000,3500,2300,2100,3100),
+  Sale2014 = c(5050,3800,2900,2500,3300),
+  Sale2015 = c(5050,4000,3200,2800,3700),
+  Sale2016 = c(6000,4800,4500,3500,4300)
+  )
+
+mydata<-melt(
+  data,id.vars  = c("Name","Company"),
+  variable.name = "Year",
+  value.name    = "Sale"
+  )
+
+
+ggplot(mydata,aes(Company,Sale,group=Year,color=Year)) +
+  geom_line() +
+  scale_x_discrete(expand = c(0,0)) +
+  coord_polar(theta = "x")
+
+
+mydata <- matrix(runif(40,0,1),5,8)
+rownames(mydata) <- LETTERS[1:5]
+colnames(mydata) <- c("Apple","Google","Facebook","Amozon","Tencent","Alibaba","Baidu","Twitter")
+mynewdata<-data.frame(mydata)
+
+Name <- c("USA","CHN","UK","RUS","JP")
+mynewdata <- data.frame(Name,mynewdata)
+
+#单序列：
+ggradar(mynewdata[1,])
+
+#多序列：
+ggradar(mynewdata)
+
+```
+
+
+
+### 7.6 ggplot2辅助极坐标图-气泡饼图
+
+```{r, message=FALSE}
+if(!require(scatterpie)) install.packages("scatterpie")
+if(!require(Cairo)) install.packages("Cairo")
+```
+ 
+```{r}
+set.seed(123)
+long <- rnorm(50, sd = 100)
+lat <- rnorm(50, sd = 50)
+d <- data.frame(long = long, lat = lat)
+d <- with(d, d[abs(long) < 150 & abs(lat) < 70,])
+n <- nrow(d)
+d$region <- factor(1:n)
+d$A <- abs(rnorm(n, sd = 1))
+d$B <- abs(rnorm(n, sd = 2))
+d$C <- abs(rnorm(n, sd = 3))
+d$D <- abs(rnorm(n, sd = 4))
+d[1, 4:7] <- d[1, 4:7] * 3
+d
+```
+
+```{r}
+ggplot() +
+    geom_scatterpie(data = d, mapping = aes(x = long, y = lat), cols = LETTERS[1:4]) +
+    coord_equal() +
+    scale_fill_wsj()
+
+d$radius = 6 * abs(rnorm(n))
+ggplot() +
+    geom_scatterpie(data = d, mapping = aes(x = long, y = lat, r = radius), cols = LETTERS[1:4], colour = NA) +
+    coord_equal() +
+    geom_scatterpie_legend(d$radius, x = 140, y = -70) +
+    scale_fill_wsj()
+```
+
+
+
+```{r}
+mydata <- c(1,1,1,1,1,1,1,1,1,2,3,2,3,5,5,1,1,1,1,1,2,2,4,5,1,3,2,3,5,5,4,2,4,2,1,2,1,1,0.5,0.5)
+Year<-2004:2011
+Dummy<-5*seq(1:8)
+Data<-c(5,6,18,5,14,18,13,5)
+mynewdata<-matrix(mydata,nrow=8,ncol=5,byrow=T)
+colnames(mynewdata)<-c("S1","S2","S3","S4","S5")
+mynewdata <- as.data.frame(mynewdata)
+
+mynewdata1 <- cbind(Year,Dummy,Data,mynewdata)
+as.integer(mynewdata1$Dummy)
+as.integer(mynewdata1$Year)
+
+color1<-c("#FF2D2D","#F79646","#4BACC6","#FFC000","#92D050")
+color2<-c("#17375E","#23538D","#558ED5","#8EB4E3","#C6D9F1")
+
+# CairoPNG(file="C:/Users/Administrator/Desktop/scatterpie1.png", width = 800, height = 528)
+ggplot() +
+  geom_line(mapping = aes(x = Dummy, y = Data, group = 1), col = "#085264", size = 0.8) +
+  geom_scatterpie(data = mynewdata1, mapping = aes(x = Dummy, y = Data, r = 1.5), cols = colnames(mynewdata1)[4:8], color = NA) +
+  ylim(0, 25) +
+  scale_fill_manual(values = color1) +
+  scale_x_continuous(breaks = mynewdata1$Dummy, labels = c(2004:2011)) +
+  coord_equal() +
+  guides(fill = guide_legend(label.position = "top")) +
+  theme_grey() %+replace%
+  theme(
+    axis.text.x = element_text(size=12, face="italic", margin = margin(2, 2, 5, 2, "pt")),
+    axis.text.y = element_text(size=12, face="italic", margin = margin(2, 2, 2, 5, "pt")),
+    axis.ticks.length = unit(0.3,'cm'),
+    legend.direction = "horizontal",
+    legend.position = c(0.15,0.9)
+  )
+# dev.off()
+```
+
+
+## **8 ggplot2辅助几何对象与信息图基础**
+
+
+### **8.1 辅助图形操作图形1 —— geom_rect矩形图**
+
+```
+geom_rect(mapping = aes(xmin, xmax, ymin, ymax))
+```
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/rect.PNG)
+
+```{r}
+mydata <- data.frame(
+  Label  = c("Point1", "Point2", "Point3", "Point4", "Point5"),
+  xstart = c(5.5, 15.7, 19.5, 37.2, 36.9),
+  xend   = c(9.7, 28.1, 24.6, 44.6, 47.1), 
+  ystart = c(9.6, 23.1, 2.3, 33.2, 9.2),
+  yend   = c(16.1, 36.2, 11.7, 38.5, 15.3),
+  size   = c(12, 48, 30, 11.5, 28),
+  class  = c("A", "A", "A", "C", "C")
+)
+```
+
+```{r}
+ggplot(data = mydata) +
+    geom_rect(mapping = aes(xmin = xstart, xmax = xend, ymin = ystart, ymax = yend, fill = class)) +
+    scale_fill_wsj()
+```
+
+
+```{r}
+ggplot(data = mydata) +
+    geom_rect(mapping = aes(xmin = xstart, xmax = xend, ymin = ystart, ymax = yend, fill = class)) +
+    scale_fill_wsj() + 
+    ylim(-10, 40) +
+    scale_x_continuous(expand = c(0, 0)) +
+    coord_polar(theta = "x")
+```
+
+```{r}
+ggplot(data = mydata) +
+    geom_rect(mapping = aes(xmin = xstart, xmax = xend, ymin = ystart, ymax = yend, fill = class)) +
+    scale_fill_wsj() + 
+    ylim(-10, 40) +
+    scale_y_continuous(expand = c(0, 0)) +
+    coord_polar(theta = "y")
+```
+
+```{r}
+ggplot(data = mydata) +
+    geom_rect(mapping = aes(xmin = xstart, xmax = xend, ymin = ystart, ymax = yend, fill = class)) +
+    scale_fill_wsj() + 
+    facet_grid(.~ class) +
+    scale_y_continuous(expand = c(0, 0))
+```
+
+
+### **8.2 辅助图形操作图形2 —— geom_segment直线段图**
+
+```
+geom_segment(mapping = aes(x, y, xend, yend))
+```
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/segment.PNG)
+
+```{r}
+mydata <- data.frame(
+  Label  = c("Point1", "Point2", "Point3", "Point4", "Point5"),
+  xstart = c(5.5, 15.7, 19.5, 37.2, 36.9),
+  xend   = c(9.7, 28.1, 24.6, 44.6, 47.1), 
+  ystart = c(9.6, 23.1, 2.3, 33.2, 9.2),
+  yend   = c(16.1, 36.2, 11.7, 38.5, 15.3),
+  size   = c(12, 48, 30, 11.5, 28),
+  class  = c("A", "A", "A", "C", "C")
+)
+```
+
+
+```{r}
+ggplot(data = mydata) +
+    geom_segment(mapping = aes(x = xstart, y = ystart, 
+                              xend = xend, yend = yend, colour = class), 
+                 arrow = arrow(length = unit(0.5, "cm")),
+                 size = 1.5) +
+    scale_fill_wsj()
+
+ggplot(data = mydata) +
+    geom_segment(mapping = aes(x = xstart, y = ystart, 
+                              xend = xend, yend = yend, colour = class), 
+                 arrow = arrow(length = unit(0.5, "cm")),
+                 size = 1.5) +
+    scale_fill_wsj() +
+    coord_polar(theta = "x")
+
+ggplot(data = mydata) +
+    geom_segment(mapping = aes(x = xstart, y = ystart, 
+                              xend = xend, yend = yend, colour = class), 
+                 arrow = arrow(length = unit(0.5, "cm")),
+                 size = 1.5) +
+    scale_fill_wsj() +
+    facet_grid(.~ class)
+```
+
+
+
+### **8.3 辅助图形操作图形3 —— geom_linerange线范围图**
+
+```
+geom_linerange(mapping = aes(x, ymin, ymax))
+```
+
+![](E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2/img/linerange.PNG)
+
+```{r}
+mydata <- data.frame(
+  Lebal  = c("linerange1","linerange2","linerange3","linerange4","linerange5"),
+  xstart = c(3.5,7,12,16,20),
+  ymin   = c(2.5,6.5,3,4.5,3.8),
+  ymax   = c(7.5,9.5,9,13.5,4.2),
+  class  = c("A","A","A","C","C")
+)
+mydata
+```
+
+
+```{r}
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_colour_wsj()
+
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_colour_wsj() +
+    coord_flip()
+
+
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_fill_wsj() +
+    scale_x_continuous(limits = c(0, 25), expand = c(0, 0)) +
+    coord_polar(theta = "x")
+
+
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_fill_wsj() +
+    scale_x_continuous(limits = c(0, 25), expand = c(0, 0)) +
+    coord_polar(theta = "y")
+
+
+
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_colour_wsj() +
+    facet_grid(.~ class)
+
+
+ggplot(data = mydata) +
+    geom_linerange(mapping = aes(x = xstart, ymin = ymin, ymax = ymax, colour = class), size = 1.5) +
+    scale_colour_wsj() +
+    coord_flip() +
+    facet_grid(.~ class)
+```
+ 
+
+### **8.4 辅助图形操作图形4 —— geom_polygon多边形图**
+
+```
+geom_polygon(mapping = aes(x, y, group, order))
+```
+
+```{r}
+mydata <- data.frame(
+  long = c(15.4,17.2,19.7,15.9,7.4,8.9,8.5,10.4,11.3,9.7,4.8,3.7,22.4,25.6,27.8,25.1,16.7,15.9,29.9,38.7,43.2,40.2,35.6,29.4),
+  lat  = c(38.1,36.2,33.1,24.6,29.0,33.6,12.1,11.7,8.9,6.1,5.7,9.1,8.4,7.6,5.7,3.9,4.3,5.9,32.6,31.8,27.6,22.3,24.5,29.6),
+  group= c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4),
+  order =c(1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6),
+  class = rep(c("A","c"),each = 12)
+)
+```
+
+```{r}
+ggplot(data = mydata) +
+    geom_polygon(mapping = aes(x = long, y = lat, group = group, fill = class), colour = "white") +
+    scale_fill_wsj()
+```
+
+```{r}
+ggplot(data = mydata) +
+    geom_polygon(mapping = aes(x = long, y = lat, group = group, fill = class), colour = "white") +
+    scale_fill_wsj() +
+    facet_grid(.~ class)
+```
+
+
+
+### **8.5 折线图与路径图的区别 —— geom_line/geom_path**
+
+```
+geom_line() # 按照X轴自排序，按照排序后的点顺序依次连接
+geom_path() # 无排序，按照点在记录中出现的实际顺序依次相连
+```
+
+### **8.6 常见的辅助线/误差线对象(geom_abline/hline/vline/errorbar/herrorbar)**
+
+```
+# 垂直误差线
+geom_errorbar()
+# 水平误差线
+geom_errorbarh()
+# 平滑曲线
+geom_smooth()
+```
+
+```
+geom_abline()
+geom_hline()
+geom_vline()
+```
+
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_vline(xintercept = 5)
+
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_vline(xintercept = 1:5)
+```
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_hline(yintercept = c(20, 22, 24, 26, 28, 30))
+```
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_abline(intercept = 15, slope = 2)
+```
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = TRUE)
+```
+
+#### geom_errorbar()
+
+```{r}
+df = data.frame(
+    trt = factor(c(1, 1, 2, 2)),
+    resp = c(1, 5, 3, 4),
+    group = factor(c(1, 2, 1, 2)),
+    upper = c(1.1, 5.3, 3.3, 4.2),
+    lower = c(0.8, 4.6, 2.4, 3.6)
+)
+```
+
+```{r}
+ggplot(data = df, mapping = aes(x = trt, y = resp, colour = group)) +
+    geom_errorbar(mapping = aes(ymin = lower, ymax = upper), width = 0.2)
+```
+
+```{r}
+ggplot(data = df, mapping = aes(x = trt, y = resp, colour = group)) +
+    geom_point() + 
+    geom_errorbar(mapping = aes(ymin = lower, ymax = upper), width = 0.2)
+```
+
+```{r}
+ggplot(data = df, mapping = aes(x = trt, y = resp, colour = group)) +
+    geom_point() + 
+    geom_errorbar(mapping = aes(ymin = lower, ymax = upper), width = 0)
+```
+
+
+#### geom_herrorbar()
+
+```{r}
+df = data.frame(
+    trt = factor(c(1, 1, 2, 2)),
+    resp = c(1, 5, 3, 4),
+    group = factor(c(1, 2, 1, 2)),
+    se = c(0.1, 0.3, 0.3, 0.2)
+)
+
+ggplot(data = df, mapping = aes(x = resp, y = trt, colour = group)) +
+    geom_point() + 
+    geom_errorbarh(mapping = aes(xmin = resp - se, xmax = resp + se), height = 0)
+```
+
+
+### **8.7 ggplot2辅助高阶图形扩展包——ggtreemap(树状图)**
+
+```{r}
+if(!require(treemapify)) install.packages("treemapify")
+if(!require(tidyverse)) install.packages("tidyverse")
+if(!require(tweenr)) install.packages('tweenr')
+if(!require(gganimate)) devtools::install_github("dgrtwo/gganimate")
+if(!require(RColorBrewer)) install.packages("RColorBrewer")
+
+# data 
+str(G20)
+G20
+
+# gg_treemap()
+p1 = ggplot(data = G20, mapping = aes(area = gdp_mil_usd)) +
+  geom_treemap(fill = "steelblue")
+p1
+
+
+p2 = ggplot(data = G20, 
+            mapping = aes(area = gdp_mil_usd, fill = hdi, label = country)) +
+  geom_treemap() +
+  geom_treemap_text(fontface = "italic", 
+                    colour = "blue", 
+                    place = "center", 
+                    grow = TRUE, alpha = 0.6) +
+  scale_fill_distiller(palette = "Greens")
+p2
+
+p3 = ggplot(data = G20, mapping = aes(area = gdp_mil_usd, fill = hdi, label = country, subgroup = region)) +
+  geom_treemap() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = 'center', 
+                             grow = TRUE, 
+                             alpha = 0.5, 
+                             colour = "black", 
+                             fontface = "italic", 
+                             min_size = 0) +
+  geom_treemap_text(colour = "blue", place = "topleft", reflow = TRUE, alpha = 0.6) +
+  scale_fill_distiller(palette = "Greens")
+p3
+
+p4 = ggplot(data = G20, mapping = aes(area = gdp_mil_usd, fill = region, label = country)) +
+  geom_treemap() +
+  geom_treemap_text(grow = TRUE, reflow = TRUE, colour = "black") +
+  facet_wrap(~econ_classification) +
+  scale_fill_brewer(palette = "Blues") +
+  labs(title = "The G-20 major economies",
+       caption = "The area of each country is proportional to its relative GDP within the economic group (advanced or developing)", 
+       fill = "Region") +
+  theme(legend.position = "bottom", 
+        plot.caption = element_text(hjust = 0))
+p4
+
+
+G20_alt = G20
+G20_alt$gdp_mil_usd = sample(G20$gdp_mil_usd, nrow(G20))
+G20_alt$hdi = sample(G20$hdi, nrow(G20))
+tweened = tween_states(list(G20, G20_alt, G20), 
+                       tweenlength = 8, 
+                       statelength = 5, 
+                       ease = "cubic-in-out", 
+                       nframes = 30)
+animated_plot = ggplot(tweened, 
+                       mapping = aes(area = gdp_mil_usd, 
+                                     fill = hdi, 
+                                     label = country, 
+                                     subgroup = region, 
+                                     frame = .frame)) +
+  geom_treemap(fixed = TRUE) +
+  geom_treemap_subgroup_text(place = "center", 
+                             grow = TRUE, 
+                             alpha = 0.5, 
+                             colour = "black", 
+                             fontface = "italic", 
+                             min.size = 0, 
+                             fixed = TRUE) +
+  geom_treemap_text(colour = "white", 
+                    place = "topleft", 
+                    reflow = TRUE, 
+                    fixed = TRUE) +
+  scale_fill_distiller(palette = "Greens")
+animated_plot
+# ani.options(interval = 1/10)
+# gganimate(animated_plot, 
+#           "/home/wangzhefeng/project/R/animated_treemap.gif", 
+#           title_frame = FALSE, 
+#           ani.width = 1000, 
+#           ani.height = 800)
+```
+
+
+
+### **8.8 方块气泡图、不等款宽柱形图、堆积不等款柱形图案例**
+
+
+
+```{r}
+## !/user/bin/env RStudio 1.1.423
+## -*- coding: utf-8 -*-
+## 方块气泡图
+
+library("ggplot2")
+windowsFonts(myFont = windowsFont("arial"))
+
+mydata <- data.frame(
+  X=c(3,7,11,15,19),
+  A=c(2471,1893,1248,1078,556),
+  B=c(1385,951,869,784,366),
+  C=c(56,7,19,13,40)
+  )
+
+
+mydata$Axmin<- mydata$X-sqrt(mydata$A)/30
+mydata$Axmax<- mydata$X+sqrt(mydata$A)/30
+mydata$Aymin<-0
+mydata$Aymax<- sqrt(mydata$A)/15
+
+
+mydata$Bxmin<-mydata$X+sqrt(mydata$A)/30 - sqrt(mydata$B)/15
+mydata$Bxmax<-mydata$X+sqrt(mydata$A)/30
+mydata$Bymin<-0
+mydata$Bymax<-sqrt(mydata$B)/15
+
+
+mydata$Cxmin<-mydata$X+sqrt(mydata$A)/30-sqrt(mydata$C)/10
+mydata$Cxmax<-mydata$X+sqrt(mydata$A)/30
+mydata$Cymin<-0
+mydata$Cymax<-sqrt(mydata$C)/10
+
+mydata$text<-c(
+  "University of\n Pennsylvania",
+  "University of\n Notre Dame",
+  "Princeton\n University",
+  "Stanford\n University",
+  "California Institute\n of Technology"
+  )
+mydata$full<-c("31663","16548","27189","34348","5225")
+
+
+
+ggplot(mydata)+
+  geom_rect(aes(xmin=Axmin,xmax=Axmax,ymin=Aymin,ymax=Aymax),fill="#59AF8A")+
+  geom_rect(aes(xmin=Bxmin,xmax=Bxmax,ymin=Bymin,ymax=Bymax),fill="#0074A3")+
+  geom_rect(aes(xmin=Cxmin,xmax=Cxmax,ymin=Cymin,ymax=Cymax),fill="#C72733")+
+  geom_linerange(aes(x=X+2,ymin=0,ymax=4.8),col="grey",linetype=2)+
+  ylim(-.5,6)+
+  labs(x="",y="")+
+  geom_text(aes(x=X,y=4.5,label=text),size=4,fontface="bold",family="myFont")+
+  geom_label(aes(x=X,y=3.7,label=full),fill="#EFE5CA",colour="black",fontface="bold",size=3.5,label.r=unit(0.15,"lines"),family="myFont")+
+  geom_text(aes(x=Axmin,y=Aymax,label=A),hjust=-.2,vjust=1,size=3.5,col="white",family="myFont")+
+  geom_text(aes(x=Bxmin,y=Bymax,label=B),hjust=-.2,vjust=1,size=3.5,col="white",family="myFont")+
+  geom_text(aes(x=Cxmin,y=Cymax,label=C),hjust=-.2,vjust=1,size=3,col="white",family="myFont")+
+  annotate("text",x=2.5,y=5.7,label="Class Struggle",col="black", size=6,family="myFont")+  
+  annotate("text",x=8.85,y=5.2,label="A spot on a university or college's waitlist rarely translates into admission. A look at the numbers for several institutions", size=4,family="myFont")+  
+  annotate("text",x=3.9,y=-.32,label="Source:The universities and 2011-2012 Common Data Set",col="black",size=3,family="myFont")+  
+  annotate("text",x=19.8,y=-.32,label="The wall Street Jaunual",col="black",size=3,family="myFont")+  
+  theme_void()+
+  theme(panel.background=element_rect(fill="#F5F2E1"))
+```
+
+```{r, eval = FALSE}
+#建议保存尺寸（1035*330）
+#--------------------------------------------------------------------------------------------------------------------------
+mydata1<-mydata[,c(1,5:8)]
+names(mydata1) <- c("X","xmin","xmax","ymin","ymax")
+
+mydata2<-mydata[,c(1,9:12)]
+names(mydata2) <- c("X","xmin","xmax","ymin","ymax")
+
+mydata3<-mydata[,c(1,13:16)]
+names(mydata3) <- c("X","xmin","xmax","ymin","ymax")
+
+mynewdata<-rbind(mydata1,mydata2,mydata3)
+mynewdata$Group <- factor(rep(c("A","B","C"),each = 5),order=T)
+
+
+ggplot(mynewdata,aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,fill=Group))+
+  geom_rect()+
+  scale_fill_manual(values=c("#59AF8A","#0074A3","#C72733")) +
+  geom_linerange(aes(x=X+2,ymin=0,ymax=4.8),col="grey",linetype=2)+
+  # geom_text(data =mydata,aes(x=X,y=4.5,label=text),size=4,fontface="bold",family="myFont")+
+  geom_label(data =mydata,aes(x=X,y=3.7,label=full),fill="#EFE5CA",colour="black",fontface="bold",size=3.5,label.r=unit(0.15,"lines"),family="myFont") +  geom_text(data =mydata,aes(x=Axmin,y=Aymax,label=A),hjust=-.2,vjust=1,size=3.5,col="white",family="myFont")+
+  geom_text(data =mydata,aes(x=Bxmin,y=Bymax,label=B),hjust=-.2,vjust=1,size=3.5,col="white",family="myFont")+
+  geom_text(data =mydata,aes(x=Cxmin,y=Cymax,label=C),hjust=-.2,vjust=1,size=3,col="white",family="myFont")+
+  ylim(-.5,6)+
+  labs(x="",y="") + 
+  annotate("text",x=2.5,y=5.7,label="Class Struggle",col="black", size=6,family="myFont")+  
+  annotate("text",x=8.85,y=5.2,label="A spot on a university or college's waitlist rarely translates into admission. A look at the numbers for several institutions", size=4,family="myFont")+  
+  annotate("text",x=3.9,y=-.32,label="Source:The universities and 2011-2012 Common Data Set",col="black",size=3,family="myFont")+  
+  annotate("text",x=19.8,y=-.32,label="The wall Street Jaunual",col="black",size=3,family="myFont")+  
+  theme_void()+
+  theme(
+    panel.background=element_rect(fill="#F5F2E1")
+    )
+```
+
+
+
+
+```{r}
+## !/user/bin/env RStudio 1.1.423
+## -*- coding: utf-8 -*-
+## bar with a unequal width
+
+
+library("ggplot2")
+library("scales")
+# windowsFonts(myFont = windowsFont("微软雅黑"))
+
+
+mydata <- data.frame(
+  Name=paste0("项目",1:5),
+  Scale=c(35,30,20,10,5),
+  ARPU=c(56,37,63,57,59)
+  )
+
+
+#构造矩形X轴的起点（最小点）
+mydata$xmin<-0
+for (i in 2:5){
+  mydata$xmin[i]<-sum(mydata$Scale[1:i-1])
+}
+
+#构造矩形X轴的终点（最大点）
+for (i in 1:5){
+  mydata$xmax[i]<-sum(mydata$Scale[1:i])
+}
+
+
+#构造数据标签的横坐标：
+for (i in 1:5){
+  mydata$label[i]<-sum(mydata$Scale[1:i])-mydata$Scale[i]/2
+}
+
+ggplot(mydata)+
+  geom_rect(aes(xmin=xmin,xmax=xmax,ymin=0,ymax=ARPU,fill=Name))+
+  scale_fill_manual(values=c("#54576B","#BD1F12","#E8BA11","#62962A","#9B56AF"))+
+  geom_text(aes(x=label,y=ARPU-3,label=ARPU),size=6,col="white"
+            # ,family="myFont"
+            )+
+  geom_text(aes(x=label,y=-2.5,label=Scale),size=4,col="black"
+            # ,family="myFont"
+            )+
+  geom_text(aes(x=label,y=-5.5,label=Name),size=4,col="black"
+            # ,family="myFont"
+            )+
+  annotate("text",x=16,y=70,label="不等宽柱形图",size=8
+           # ,family="myFont"
+           )+  
+  annotate("text",x=14,y=64,label="这是一幅很用心的图表",size=4
+           # ,family="myFont"
+           ) + 
+  annotate("text",x=11,y=-9.8,label="Source:DataMofang",size=4
+           # ,family="myFont"
+           ) + 
+  ylim(-10,80)
+  # + theme_void(base_family = "myFont")
+
+#不等宽堆积百分比图
+
+Mekko<-read.csv("E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/ggplot2_ppt/第八章/Mekko.csv",stringsAsFactors = FALSE) 
+Mekko$Class<-factor(Mekko$Class,order=T)
+
+
+#构造矩形(Obama)X轴的起点（最小点）
+Mekko$xmin<-0
+for (i in 2:nrow(Mekko)){
+  Mekko$xmin[i]<-sum(Mekko$percent[1:i-1])
+}
+
+#构造矩形(Obama)X轴的终点（最大点）
+for (i in 1:nrow(Mekko)){
+  Mekko$xmax[i]<-sum(Mekko$percent[1:i])
+}
+
+
+#构造数据标签的横坐标：
+for (i in 1:nrow(Mekko)){
+  Mekko$label[i]<-sum(Mekko$percent[1:i])-Mekko$percent[i]/2
+}
+
+mynewdata1<-Mekko[,c(1,6,7)];
+mynewdata1$ymin<-0;
+mynewdata1$ymax<-Mekko$Obama;
+mynewdata1$Type<-"Obama"
+mynewdata2<-Mekko[,c(1,6,7)];
+mynewdata2$ymin<-Mekko$Obama+Mekko$m;
+mynewdata2$ymax<-Mekko$Obama+Mekko$m+Mekko$McCain;mynewdata2$Type<-"McCain"
+mynewdata<-rbind(mynewdata1,mynewdata2)
+
+mynewdata$Type<-factor(mynewdata$Type,levels=c("Obama","McCain"),order=T)
+
+ggplot(mynewdata)+
+  geom_rect(aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,fill=Type),col="white")+
+  scale_fill_manual(values=c("#004C7F","#B70023"))+
+  scale_x_continuous(breaks=Mekko$label,labels=Mekko$Class)+
+  geom_text(data=Mekko,aes(x=label,y=.25,label=percent(Obama)),size=3.5,col="white"
+            # ,family="myFont"
+            )+
+  geom_text(data=Mekko,aes(x=label,y=.8,label=percent(McCain)),size=3.5,col="white"
+            # ,family="myFont"
+            )+
+  labs(
+    title="MEKKO-市场细分矩阵图",
+    subtitle="这是一幅用心良苦的图表",
+    caption="Source:EasyCharts",
+    x="",
+    y=""
+    )+
+  theme_grey()  %+replace%
+  theme(
+    plot.margin=unit(c(2,0,0.5,0),"lines"),
+    panel.spacing=unit(c(0,0,0,0),"lines"),
+    axis.text.x=element_text(angle=90,size=10),
+    legend.position=c(.78,1),
+    legend.direction="horizontal",
+    plot.title=element_text(size=18,hjust = 0),
+    plot.subtitle=element_text(size=14,hjust = 0),
+    plot.caption=element_text(size=10,hjust=0)
+  )
+```
+
+
+### **9. 空间可视化与数据地图基础**
+
+* 9.1 地理信息空间数据映射原理
+* 9.2 shp、json格式地理信息数据结构
+* 9.3 地理 信息应用包简介(sp、maptools、rgdal、sf)
+* 9.4 sp空间数据操纵与整合
+* 9.5 sf格式空间数据结构
+* 9.6 sf格式空间数据映射原理
+
+* ChinaMap.shp(`*.shp`, `*.shx`, `*.dbf`)
+    - `maptools`
+        - sp
+    - `rgdal`
+        - sp
+    - `sf`
+        - sf
+* ChinaMap.json
+    - `rgdal`
+         - sp
+    - `sf`
+        - sf
+
+#### 9.1 sp空间数据映射原理
+
+```
+geom_ploygon(mapping = aes(x, y, group))
+```
+
+
+#### 9.2 shp、json格式地理信息数据结构-获取
+
+* shp数据结构
+    1. 分文件存储信息
+        - name.dbf
+        - name.shp
+        - name.shx
+    2. 获取渠道
+       - [https://gadm.org/download_country_v3.html](https://gadm.org/download_country_v3.html)
+    3. 导入工具
+        - maptools
+        - rgdal
+        - sf
+* json数据结构
+    1. key-value形式的键值对结构
+        - name.json
+    2. 获取渠道
+        [http://datav.aliyun.com/static/tools/atlas/](http://datav.aliyun.com/static/tools.atlas/)
+
+
+#### 9.3 地理信息应用包简介
+
+* sp
+* maptools
+* rgdal
+* sf
+
+```{r}
+if(!require(rgdal)) install.packages("rgdal")
+if(!require(sf)) install.packages("sf")
+if(!require(maptools)) install.packages("maptools")
+```
+
+```{r}
+rm(list = ls())
+gc()
+```
+
+
+
+

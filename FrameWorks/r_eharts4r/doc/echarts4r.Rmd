@@ -1,0 +1,41 @@
+---
+title: "echarts4r_tutorial"
+author: "wangzhefeng"
+date: "2018年12月14日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Packages
+
+```{r}
+library(dplyr)
+library(echarts4r)
+```
+
+```{r}
+iris %>%
+    group_by(Species) %>%
+    e_charts(Sepal.Length) %>%
+    e_line(Sepal.Width) %>%
+    e_title('Grouped data')
+```
+
+```{r, eval = FALSE}
+iris %>% 
+  group_by(Species) %>% 
+  e_charts(Sepal.Length, timeline = TRUE) %>% 
+  e_line(Sepal.Width) %>% 
+  e_title("Timeline")
+```
+
+```{r}
+iris %>%
+    group_by(Species) %>%
+    e_charts(Sepal.Length) %>%
+    e_scatter(Petal.Length, Petal.Width)
+```
+

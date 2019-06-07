@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1525332866260.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "847774190",
+    "id" : "165905D",
+    "lastKnownWriteTime" : 1509343056,
+    "last_content_update" : 1509343056,
+    "path" : "E:/ubuntu_project/DataVisualiztion/graphics/R_plot.R",
+    "project_path" : "R_plot.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,151 @@
+---
+title: "plotly"
+author: "zfwang"
+date: "2016年12月16日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **plotly--R**
+
+> Plotly is an R package for creating interactive web-based graphs via the open source JavaScript graphing library plotly.js. As of version 2.0 (November 17, 2015), Plotly graphs are rendered locally through the htmlwidgets framework.
+
+## **1.绘图环境准备**
+
+### **1.1 下载、载入plotly包**
+
+plotly的普通版本在CRAN上可以找到：
+
+```{r, message=FALSE}
+## Plotly is now on CRAN
+if(!require(plotly)) install.packages("plotly")
+```
+
+plotly的开发版本需要在Github上下载：
+
+```{r,eval=FALSE}
+## Install the latest development version (on Github) via devtools:
+devtools::install_github("ropensci/plotly")
+```
+
+plotly当前版本号：
+
+```{r}
+packageVersion('plotly')
+```
+
+### **1.2 绘图环境设置**
+
+> R中的plotly绘图，既可以进行离线绘图，也可以在线绘图
+
+#### **1.2.1 离线绘图**
+
+> plotly的离线绘图结果将会展示在RStudio的绘图窗口中或者在浏览器中
+
+#### **1.2.2 在线绘图**
+
+> plotly的在线绘图支持通过Web服务把绘制的图形发表在网上，具体步骤如下：
+> 
+> 1. [免费注册](https://plot.ly/feed/#/)一个Plotly免费账号；
+> 2. 保存身份验证凭据。在[在线设置](https://plot.ly/accounts/login/?next=%2Fsettings%2Fapi#/)中查找身份验证API密钥，并在在R会话中设置它们：
+>     - `Sys.setenv("plotly_username"="your_plotly_username")`
+>     - `Sys.setenv("plotly_api_key"="your_api_key")`
+>     - 可以把这两句命令保存在.Rprofile文件中，这样在每次启动R的时候就会自动运行了；
+> 3. 通过api_create()函数把绘制的图形发表在Plotly上
+>     - `p <- plot_ly(data, x = ~, color = ~, type = "")`
+>     - `api_create(p, filename = "r-docs-name")`
+>     - 这里的`filename`是网上Plotly的文件名，当前的免费账户不支持建立文件夹；
+
+
+
+## **2.plotly 和 ggplot2**
+
+> Plotly is R package for creating interactive web-based graphs via plotly's JavaScript graphing library, `plotly.js`. The plotly R libary contains the `ggplotly` function , which will convert ggplot2 figures into a Plotly object. Furthermore, you have the option of manipulating the Plotly object with the `style` function.
+
+```{r}
+library(plotly)
+library(ggplot2)
+```
+ 
+#### 一个例子
+
+
+```{r}
+set.seed(100)
+d = diamonds[sample(nrow(diamonds), 1000), ]
+```
+
+```{r}
+p1 = ggplot(data = d, mapping = aes(x = carat, y = price)) +
+    geom_point(size = 2)
+p1 = ggplotly(p1)
+p1
+```
+
+```{r}
+p2 = ggplot(data = d, mapping = aes(x = carat, y = price)) +
+    geom_point(size = 2) +
+    geom_smooth(mapping = aes(colour = cut, fill = cut))
+p2 = ggplotly(p2)
+p2
+```
+
+
+```{r}
+p3 = ggplot(data = d, mapping = aes(x = carat, y = price)) +
+    geom_point(mapping = aes(text = paste("Clarity:", clarity)), size = 2) +
+    geom_smooth(mapping = aes(colour = cut, fill = cut)) +
+    facet_wrap(~ cut)
+p3 = ggplotly(p3)
+p3
+```
+
+
+
+
+
+
+## **2.图形类型**
+
+
+> * 基本图形
+>     - 散点图
+>     - 条形图
+>     - 饼图
+>     - 直方图
+>  
+> * 地图
+
+
+## **3.散点图**
+
+### **3.1 基本散点图**
+
+```{r, fig.height=5, fig.width=8, message=FALSE}
+p_scatter1 = plot_ly(data = iris,                          # data
+                     x = ~Sepal.Length, y = ~Petal.Length, # mapping
+                     type = 'scatter', mode = 'markers')   # geom
+p_scatter1
+```
+
+
+### **3.2 **
+
+
+
+### **3.3 箱线图**
+
+```{r}
+p_box1 = plot_ly(data = midwest,                  # data
+           x = ~percollege, color = ~state, # mapping
+           type = "box")                    # geom
+p_box1
+```
+
+
+
+
+## **4.**

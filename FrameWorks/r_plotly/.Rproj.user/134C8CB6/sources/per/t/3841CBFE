@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1509580046368.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "893667013",
+    "id" : "3841CBFE",
+    "lastKnownWriteTime" : 1509580706,
+    "last_content_update" : 1509580706939,
+    "path" : "~/project/plotly-R/Bar.R",
+    "project_path" : "Bar.R",
+    "properties" : {
+        "cursorPosition" : "76,4",
+        "scrollLine" : "54"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

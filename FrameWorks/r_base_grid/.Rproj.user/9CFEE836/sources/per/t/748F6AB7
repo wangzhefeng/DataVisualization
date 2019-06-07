@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1525332860681.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1091676820",
+    "id" : "748F6AB7",
+    "lastKnownWriteTime" : 1486987178,
+    "last_content_update" : 1486987178,
+    "path" : "E:/ubuntu_project/DataVisualiztion/graphics/graphics.R",
+    "project_path" : "graphics.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

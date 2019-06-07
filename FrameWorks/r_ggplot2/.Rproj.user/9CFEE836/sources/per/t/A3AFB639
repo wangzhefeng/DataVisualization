@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1532244640579.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1678402264",
+    "id" : "A3AFB639",
+    "lastKnownWriteTime" : 1532251062,
+    "last_content_update" : 1532251062865,
+    "path" : "E:/project/Data_Visualiztion/r_ggplot2/ggplot2_tutorial/doc_learn/histogram.Rmd",
+    "project_path" : "ggplot2_tutorial/doc_learn/histogram.Rmd",
+    "properties" : {
+        "cursorPosition" : "121,78",
+        "docOutlineVisible" : "0",
+        "last_setup_crc32" : "8C005283bb338d19",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

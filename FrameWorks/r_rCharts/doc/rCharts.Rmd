@@ -1,0 +1,30 @@
+---
+title: "rCharts"
+author: "wangzhefeng"
+date: "November 4, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE}
+if(!require(devtools)) install.packages('devtools')
+if(!require(rCharts)) install_github('ramnathv/rCharts')
+```
+
+```{r}
+hair_eye_male = subset(as.data.frame(HairEyeColor), Sex == "Male")
+hair_eye_male[, 1] = paste0("Hair", hair_eye_male[, 1])
+hair_eye_male[, 2] = paste0("Eye", hair_eye_male[, 2])
+```
+
+```{r}
+nPlot(Freq ~ Hair, 
+      group = "Eye", 
+      data = hair_eye_male, 
+      type = "multiBarChart")
+```
+

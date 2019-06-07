@@ -1,0 +1,38 @@
+---
+title: "第三章"
+author: "zfwang"
+date: "2017年3月9日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	fig.align = "center",
+	fig.height = 8,
+	fig.width = 8
+)
+```
+
+3. Bar Graphs
+    - 3.1. Making a Basic Bar Graph 19
+    - 3.2. Grouping Bars Together 22
+    - 3.3. Making a Bar Graph of Counts 25
+    - 3.4. Using Colors in a Bar Graph 27
+    - 3.5. Coloring Negative and Positive Bars Differently 29
+    - 3.6. Adjusting Bar Width and Spacing 30
+    - 3.7. Making a Stacked Bar Graph 32
+    - 3.8. Making a Proportional Stacked Bar Graph 35
+    - 3.9. Adding Labels to a Bar Graph 38
+    - 3.10. Making a Cleveland Dot Plot 42
+
+
+## Requalied Packages
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gcookbook)
+library(plyr)
+library(dplyr)
+library(MASS)
+```

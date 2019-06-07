@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1521363635363.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F2D7D613",
+    "lastKnownWriteTime" : 1512315904,
+    "last_content_update" : 1512315904,
+    "path" : "~/project/R/treemap/treemapify.R",
+    "project_path" : "treemapify.R",
+    "properties" : {
+        "cursorPosition" : "6,7",
+        "scrollLine" : "9"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,23 @@
+---
+title: "recharts"
+author: "wangzhefeng"
+date: "November 4, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# <>
+
+```{r}
+if(!require(devtools)) install.packages('devtools')
+if(!require(recharts)) install_github('madlogos/recharts')
+```
+
+```{r, eval=FALSE}
+if(!require(devtools)) install_github('taiyun/recharts')
+```
+

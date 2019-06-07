@@ -1,0 +1,272 @@
+---
+title: "ggplot2 scatter"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(ggplot2)
+```
+
+
+#### 6.8.2 散点图
+
+
+#### (1) 散点图
+
+> geom_point()
+
+
+```{r}
+dsmall = diamonds[sample(nrow(diamonds), 1000), ]
+ggplot(data = dsmall, mapping = aes(x = carat, y = price)) +
+    geom_point(mapping = aes(colour = cut, size = table))
+
+ggplot(data = dsmall, mapping = aes(x = carat, y = price)) +
+    geom_point(mapping = aes(colour = color, size = table))
+
+ggplot(data = dsmall, mapping = aes(x = carat, y = price)) +
+    geom_point(mapping = aes(colour = color, shape = color))
+```
+
+
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point(mapping = aes(colour = cyl)) +
+    scale_colour_gradient(
+        low = "#FFB90F",
+        high = "#8B4500", 
+        space = "Lab", 
+        na.value = "grey50", 
+        guide = "colourbar")
+```
+
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point(mapping = aes(shape = factor(cyl)), size = 2) +
+    scale_shape(solid = FALSE)
+```
+
+
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    geom_point(shape = 21, 
+               colour = "#FF8C00", fill = "white", 
+               size = 3, 
+               stroke = 2)
+```
+
+
+```{r}
+
+p1 <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))
+p1 + geom_point() +
+    geom_point(mapping = aes(colour = factor(cyl)), size = 4) +
+    geom_point(colour = "grey90", size = 1.5)
+
+p2 <- ggplot(mtcars, aes(mpg, wt))
+p2 + geom_point(mapping = aes(shape = factor(cyl))) +
+    # 默认设置（同上）
+    # geom_point(mapping = aes(shape = factor(cyl)), size = 1.5, colour = "black") +
+    geom_point(mapping = aes(shape = factor(cyl), colour = factor(cyl)), size = 4) +
+    geom_point(mapping = aes(shape = factor(cyl)), colour = "grey90", size = 1.5)
+
+
+p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))
+p + geom_point(colour = "black", size = 4.5) +
+    geom_point(colour = "pink", size = 4) +
+    geom_point(mapping = aes(shape = factor(cyl)))
+
+
+p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))
+p + geom_point(colour = "black", size = 4.5, show.legend = FALSE) +
+    geom_point(colour = "pink", size = 4, show.legend = TRUE) +
+    geom_point(mapping = aes(shape = factor(cyl)))
+```
+
+```{r}
+mtcars2 <- transform(mtcars, mpg = ifelse(runif(32) < 0.2, NA, mpg))
+ggplot(mtcars2, aes(wt, mpg)) + geom_point()
+ggplot(mtcars2, aes(wt, mpg)) + geom_point(na.rm = TRUE)
+```
+
+
+#### (2)分面
+
+> facet_grid()
+> facet_wrap()
+
+```{r}
+ggplot(data = dsmall, mapping = aes(x = carat, y = price, colour = color)) +
+    geom_point() +
+    facet_grid(.~color)
+
+ggplot(data = dsmall, mapping = aes(x = carat, y = price, colour = color)) +
+    geom_point() +
+    facet_grid(color ~.)
+```
+
+
+
+#### (3) 数据点重叠处理
+
+> * geom_count() / stat_sum()
+> * geom_bin2d() / stat_bin_2d()
+> * geom_hex() / stat_bin_hex()
+> * geom_jitter() / geom_point(position = "jitter")
+
+#### geom_bin2d() / stat_bin_2d() / geom_hex() / stat_bin_hex()
+
+```{r}
+p0 = ggplot(data = mpg, mapping = aes(x = cty, y = hwy))
+p0 + geom_point()
+p0 + geom_count()
+p0 + geom_count() +
+    scale_size_area()
+
+p1 = ggplot(data = diamonds, mapping = aes(x = x, y = y)) +
+    xlim(4, 10) +
+    ylim(4, 10)
+p1 + geom_point()
+p1 + geom_bin2d()
+p1 + geom_bin2d(bins = 100)
+p1 + geom_bin2d(binwidth = c(0.1, 0.1))
+
+
+p2 = ggplot(data = diamonds, mapping = aes(x = carat, y = price))
+p2 + geom_hex()
+p2 + geom_hex(bins = 10)
+p2 + geom_hex(binwidth = c(1, 1000))
+```
+
+
+
+
+#### geom_jitter() / geom_point(position = "jitter")
+
+```{r}
+p1 = ggplot(data = mpg, mapping = aes(x = cyl, y = hwy))
+p1 + geom_point()
+p1 + geom_point(position = "jitter")
+p1 + geom_jitter()
+p1 + geom_jitter(mapping = aes(colour = class))
+p1 + geom_jitter(mapping = aes(colour = class), width = 0.7)
+
+p2 = ggplot(data = mpg, mapping = aes(x = cty, y = hwy))
+p2 + geom_jitter()
+p2 + geom_jitter(width = 0.9, height = 0.9)
+```
+
+
+
+
+#### (4) 点图
+
+> geom_dotplot()
+
+```
+geom_dotplot(mapping = NULL, 
+             data = NULL, 
+             position = "identity", 
+             ...,
+             binwidth = NULL, 
+             binaxis = "x", 
+             method = "dotdensity/histodot",
+             binpositions = "bygroup", 
+             stackdir = "up/down/center/centerwhole", 
+             stackratio = 1,
+             dotsize = 1, 
+             stackgroups = FALSE, 
+             origin = NULL, 
+             right = TRUE,
+             width = 0.9, 
+             drop = FALSE, 
+             na.rm = FALSE, 
+             show.legend = NA,
+             inherit.aes = TRUE)
+```
+
+
+```{r}
+p1 = ggplot(data = mtcars, mapping = aes(x = mpg, fill = factor(cyl)))
+p2 = ggplot(data = mtcars, mapping = aes(x = 1, y = mpg, fill = factor(cyl)))
+p3 = ggplot(data = mtcars, mapping = aes(x = factor(cyl), y = mpg, fill = factor(cyl)))
+p4 = ggplot(data = mtcars, mapping = aes(x = factor(vs), fill = factor(cyl), y = mpg))
+```
+
+```{r}
+p1 + geom_dotplot()
+
+p1 + geom_dotplot(method = "histodot")
+
+p1 + geom_dotplot(binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "up") +
+    scale_y_continuous(name = NULL, breaks = NULL)
+
+p1 + geom_dotplot(binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "down") +
+    scale_y_continuous(name = NULL, breaks = NULL)
+
+p1 + geom_dotplot(binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "center") +
+    scale_y_continuous(name = NULL, breaks = NULL)
+
+p1 + geom_dotplot(binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "centerwhole") +
+    scale_y_continuous(name = NULL, breaks = NULL)
+
+p1 + geom_dotplot(binwidth = 1, dotsize = 1.25, stackratio = 0.7, stackdir = "up", stackgroups = TRUE, method = "histodot")
+```
+
+
+```{r}
+p2 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "up") +
+    scale_x_continuous(name = NULL, breaks = NULL)
+
+p2 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "down") +
+    scale_x_continuous(name = NULL, breaks = NULL)
+
+p2 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "center") +
+    scale_x_continuous(name = NULL, breaks = NULL)
+
+p2 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.7, stackdir = "centerwhole") +
+    scale_x_continuous(name = NULL, breaks = NULL)
+```
+
+
+
+```{r}
+p3 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.9, stackdir = "up")
+
+p3 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.9, stackdir = "down")
+
+p3 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.9, stackdir = "center")
+
+p3 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1.25, stackratio = 0.9, stackdir = "centerwhole")
+```
+
+```{r}
+p4 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1, stackratio = 0.9, stackdir = "up", position = "dodge")
+
+p4 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1, stackratio = 0.9, stackdir = "down", position = "dodge")
+
+p4 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1, stackratio = 0.9, stackdir = "center", position = "dodge")
+
+p4 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1, stackratio = 0.9, stackdir = "centerwhole", position = "dodge")
+
+p4 + geom_dotplot(binaxis = "y", binwidth = 1.5, dotsize = 1, stackratio = 0.9, stackdir = "center", position = "identity")
+
+
+p4 + geom_dotplot(binaxis = "y", 
+                  binwidth = 1.5, 
+                  dotsize = 1, 
+                  stackratio = 0.9, 
+                  stackdir = "center", 
+                  # position = "identity"
+                  binpositions = "all")
+
+```
+
+
+
+

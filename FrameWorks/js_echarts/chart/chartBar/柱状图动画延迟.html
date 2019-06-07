@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <!-- IE浏览器兼容 -->
+    <!--[if lt IE 9]>
+    <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+    <title>柱状图动画延迟</title>
+
+    <!-- Javascript -->
+    <script src="E:/GitHub/echarts/script/jquery-3.1.1.js"></script>
+    <script src="E:/GitHub/echarts/script/echarts.min.js"></script>
+
+    <!-- 自定义的CSS -->
+    <link rel="stylesheet" href="E://GitHub/echarts/css/echarts_div.css">
+    
+    <!-- Bootstrap -->
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h2>Date: 2017-04-26 12:00:00</h2>
+    </div>
+    <!-- Main -->
+    <div id="main"></div>
+    <script>
+    var myChart = echarts.init($('#main')[0]);
+    // Data
+    var xAxisData = [];
+    var data1 = [];
+    var data2 = [];
+    for (var i = 0; i < 100; i++) {
+        xAxisData.push('类目' + i);
+        data1.push((Math.sin(i / 5) * (i / 5 - 10) + i / 6) * 5);
+        data2.push((Math.cos(i / 5) * (i / 5 - 10) + i / 6) * 5);
+    }
+    var option = {
+        title: {
+            text: '柱状图动画延迟'
+        },
+        legend: {
+            data: ['bar', 'bar2'],
+            align: 'left'
+        },
+        toolbox: {
+            // y: 'bottom',
+            feature: {
+                magicType: {
+                    type: ['stack', 'tiled']
+                },
+                dataView: {},
+                saveAsImage: {
+                    pixelRatio: 2
+                }
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        xAxis: {
+            data: xAxisData,
+            silent: false,
+            splitLine: {
+                show: false
+            }
+        },
+        yAxis: {},
+        series: [{
+            name: 'bar',
+            type: 'bar',
+            data: data1,
+            animationDelay: function(idx) {
+                return idx * 10;
+            }
+        }, {
+            name: 'bar2',
+            type: 'bar',
+            data: data2,
+            animationDelay: function(idx) {
+                return idx * 10 + 100;
+            }
+        }],
+        animationEasing: 'elasticOut',
+        animationDelayUpdate: function(idx) {
+            return idx * 5;
+        }
+    };
+    myChart.setOption(option);
+    </script>
+    <!-- Footer -->
+    <div class="footer"></div>
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+---
+title: "DT"
+author: "zfwang"
+date: "2016年7月16日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **在R中自定义表格数据—DT包**
+
+### 很多时候，我们需要在分析报告中给出相应的表格数据。如果只是单纯的给出数据对象的话报告不够美观。出于这样的一个考虑，本文给大家简单的介绍下DT包。DT包提供了JavaScript库[Data Tables](https://datatables.net/)的一个R接口，它使得R对象（矩阵或数据框）可以在HTML页面上显示为表格。该包DataTables函数生成的表格提供了数据的筛选，分页，排序及其它功能，目前已发布在CRAN上。包的作者是谢大大。
+
+## **安装方法：**
+
+```{r, eval=FALSE}
+instal.packages("DT")
+```
+
+## **加载：**
+
+```{r, warning=FALSE}
+library(DT)
+```
+
+
+## **用法：**
+
+### **Functions:**
+
+* datatable()
+* 
+* 
+* 
+* 
+
+
+
+
+
+#### **1. datatable**
+
+```{r, eval=FALSE}
+datatable(data,                                 # 数据
+          options = list(), 
+          class = "display",                    # 指定表格的CSS类型
+          callback = JS("return table;"), 
+          rownames,                             # 显示行名
+          colnames,                             # 自定义列名
+          container,                            # 通过指定数据表容器来控制表格单元
+          caption = NULL,                       # 添加表格标题
+          filter = c("none", "bottom", "top"),  # 对列进行过滤
+          escape = TRUE, 
+          style = "default", 
+          selection = c("multiple", "single", "none"), 
+          extensions = list())
+```
+
+#### **1.1 Examples:**
+
+```{r}
+datatable(iris)
+```
+
+#### **1.2 datatable 常用参数用法**
+
+##### **1.2.1 表格的CSS类型**
+
+`class`参数用于指定表格的CSS类型，所有可选项可以在[这里](https://datatables.net/manual/styling/classes)找到。该参数默认值`display`可以实现在鼠标悬停处突出对应的行，你也可以选择将CSS的类型结合起来使用。如`cell-border`和`stripe`：
+
+```{r}
+datatable(iris, class = "cell-border stripe")
+```
+
+##### **1.2.2 显示行名**
+
+如果数据对象存在行名，默认情况下会显示在表格的第一列。通过设置`rownames=FALSE`可以取消显示行名。当然，我们也可以通过字符串向量来更改行名。
+
+```{r}
+datatable(mtcars)
+datatable(head(mtcars), rownames = FALSE) #不显示行名
+```
+
+##### **1.2.3 自定义列名**
+
+默认情况下，datatable()会在表中显示数据的列名。我们也可以自定义列名。
+
+```{r}
+# 完全替换列名：
+datatable(iris, colnames = c('Here', 'Are', 'Some', 'New', 'Names'))
+# 对部分列名进行修改：
+datatable(iris, colnames = c('A Better Name' = 'Sepal.Width'))
+datatable(iris, colnames = c('Another Better Name' = 2, 'Yet Another Name' = 4))
+# 对于存在行名的数据集，默认情况下它的列名是空的。此时我们可以指定它的列名：
+datatable(iris, colnames = c('ID' = 1)) #第一列列名设置为'ID'
+```
+
+##### **1.2.4 自定义表格容器**
+
+`container`参数通过指定数据表容器来控制表格单元，默认情况下是列名。下面是一个自定义表格标题的例子：
+
+```{r, eval=FALSE}
+# 自定义表格容器
+sketch = htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 2, 'Species'),
+      th(colspan = 2, 'Sepal'),
+      th(colspan = 2, 'Petal')
+    ),
+    tr(
+      lapply(rep(c('Length', 'Width'), 2), th)
+    )
+  )
+))
+print(sketch)
+
+<table class="display">
+  <thead>
+    <tr>
+      <th rowspan="2">Species</th>
+      <th colspan="2">Sepal</th>
+      <th colspan="2">Petal</th>
+    </tr>
+    <tr>
+      <th>Length</th>
+      <th>Width</th>
+      <th>Length</th>
+      <th>Width</th>
+    </tr>
+  </thead>
+</table>
+```
+
+
+```{r, eval=FALSE}
+# 这里我们设置rownames=FALSE不显示行名，
+datatable(iris[1:20, c(5, 1:4)], container = sketch, rownames = FALSE)
+```
+
+
+##### **1.2.5 添加表格标题**
+
+`caption`参数用于添加表格标题。它可以是一个字符串向量，也可以是一个由`htmltools::tags$caption()`创建的标签对象。更多详情参考[这里](https://datatables.net/blog/2014-11-07)
+
+```{r}
+datatable(iris, caption = 'Table 1: This is a simple caption for the table.')
+# 自定义在底部显示标题
+datatable(iris,
+          caption = htmltools::tags$caption(style = 'caption-side: bottom; text-align: center;',
+                                            'Table 2: ', 
+                                            htmltools::em('This is a simple caption for the table.')))
+```
+
+
+##### **1.2.6 对列进行过滤**
+
+Data Tables默认情况下不能对列进行过滤，不过右上角提供了一个全局过滤。我们在datatable()函数中添加了一个`filter`参数用于实现列过滤，默认值为`filter='none'`。我们可以设置`filter=top`或者`filter=bottom`在顶部或者底部对列进行过滤。
+
+```{r}
+iris2 = iris[c(1:10, 51:60, 101:110), ]
+datatable(iris2, 
+          filter = 'top', 
+          options = list(pageLength = 5, autoWidth = TRUE))
+```
+

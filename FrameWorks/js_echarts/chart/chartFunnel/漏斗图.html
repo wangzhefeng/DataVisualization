@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<!-- IE浏览器兼容 -->
+
+	<!--[if lt IE 9]>
+    <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+	
+	<title>漏斗图</title>
+
+	<!-- Javascript -->
+	<script src="E:/GitHub/echarts/script/jquery-3.1.1.js"></script>
+	<script src="E:/GitHub/echarts/script/echarts.min.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="E:/GitHub/echarts/css/echarts_div.css">
+	
+	<!-- Bootstrap -->
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">
+    </script>
+
+</head>
+
+<body>
+	<!-- Header -->
+	<div class="header">
+		<h2>Date:2017-04-29 21:23:00</h2>
+	</div>
+
+	<!-- Main -->
+	<div id="main"></div>
+	<script>
+		var myChart = echarts.init($('#main')[0]);
+		var option = {
+			backgroundColor: '#F0F0F0',
+			title: {
+				text: '漏斗图',
+				subtext: '纯属虚构'
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: '{a} <br/>{b} : {c}%'
+			},
+			toolbox: {
+				feature: {
+					// 
+					dataView: {
+						readOnly: false
+					}, 
+					// 
+					restore: {},
+					// 
+					saveAsImage: {}
+				}
+			},
+			legend: {
+				data: ['展现', '点击', '访问', '咨询', '订单']
+			},
+			series: [
+				{
+					name: '预期', 
+					type: 'funnel',
+					left: '10%',
+					width: '80%',
+					label: {
+						normal: {
+							formatter: '{b}预期'
+						},
+						emphasis: {
+							position: 'inside',
+							formatter: '{b}预期: {c}%'
+						}
+					},
+					labelLine: {
+						normal: {
+							show: false
+						}
+					},
+					itemStyle: {
+						nromal: {
+							opacity: 0.7
+						}
+					},
+					data: [
+						    {value: 60, name: '访问'},
+                			{value: 40, name: '咨询'},
+                			{value: 20, name: '订单'},
+                			{value: 80, name: '点击'},
+                			{value: 100, name: '展现'}
+					]
+				},
+				{
+					name: '实际', 
+					type: 'funnel',
+					left: '10%',
+					width: '80%',
+					maxSize: '80%',
+					label: {
+						normal: {
+							position: 'inside',
+							formatter: '{c}%',
+							textStyle: {
+								color: '#fff'
+							}
+						},
+						emphasis: {
+							position: 'inside',
+							formatter: '{b}实际: {c}%'
+						}
+					},
+					itemStyle: {
+						normal: {
+							opacity: 0.5,
+							borderColor: '#fff',
+							borderWidth: 2
+						}
+					},
+            		data: [
+                		{value: 30, name: '访问'},
+                		{value: 10, name: '咨询'},
+                		{value: 5, name: '订单'},
+                		{value: 50, name: '点击'},
+                		{value: 80, name: '展现'}
+           			]
+				},
+			] 
+		};
+		myChart.setOption(option);
+	</script>
+
+	<!-- Footer -->
+    <div class="footer"></div>
+</body>
+</html>

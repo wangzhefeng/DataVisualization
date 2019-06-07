@@ -1,0 +1,446 @@
+---
+title: "ggplot2"
+author: "Zhefeng Wang"
+date: "August 19, 2015"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Customizing Plots**
+
+## Polish your plots however you please with `ggplot2`
+
+## **Summarise**
+
+1. Titles
+
+2. Coordinate Systems
+
+3. Scales
+
+4. Themes
+
+5. Axis labels
+
+6. Legends
+
+
+
+# **Data**
+## **Data: texas**
+
+
+```{r}
+setwd("D:/My Directory/DW/Intro-to-R/Day 1/data")
+texas = read.csv("texas.csv")
+head(texas)
+```
+
+```{r}
+sapply(texas, class)
+```
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+qplot(long, lat, data = texas)
+```
+
+```{r}
+qplot(long, lat, data = texas, geom = "polygon", group = group)
+```
+
+
+
+## **Data: maps**
+
+```
+install.packages("maps")
+```
+
+```{r}
+library(maps)
+library(ggplot2)
+```
+
+```{r}
+counties = map_data("county")
+```
+
+```{r}
+qplot(long, lat, data = counties, geom = "polygon", group = group, fill = group)
+```
+
+
+```
+help(package = "maps")
+```
+
+# **Manipulating plots**
+
+```{r}
+cp = qplot(carat, price, data = diamonds)
+class(cp)
+str(cp)
+cp$coordinate
+```
+
+
+# **1.Title**
+
+```{r}
+tx = qplot(long, lat, data = texas, geom = "polygon", group = group, fill = bin)
+tx2 = tx +ggtitle("Populayion of Texas Counties")
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(tx, tx2, nrow = 1)
+```
+
+# **2.Coordinate systems**
+
+## Usual Data: diamonds
+
+```{r}
+cp = qplot(carat, price, data = diamonds)
+```
+
+```{r}
+cp1 = cp = cp + coord_cartesian()
+```
+
+```{r}
+cp2 = cp + coord_polar()
+```
+
+```{r}
+cp3 = cp + coord_flip()
+```
+
+```{r}
+cp4 = cp + coord_fixed(ratio = 1/10000)
+```
+
+```{r}
+cp5 = cp + coord_trans(ytrans = "log10")
+```
+
+```{r}
+cp6 = cp + coord_trans(ytrans = "log10", xtrans = "log10")
+```
+
+```{r}
+cp7 = cp + coord_cartesian(ylim = c(0:5000), xlim = c(0:1))
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(cp1, cp2, cp3, cp4, cp5, cp6, cp7, nrow = 3)
+```
+
+
+## Map data: texas
+
+```{r}
+tx = qplot(long, lat, data = texas, geom = "polygon", group = group, fill = bin)
+tx1= tx + coord_map()
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(tx, tx1, ncol = 2)
+```
+
+
+## Pie charts
+
+* **Aside: In the grammar of graphics, a pie chart is a stacked bar graph in polar coordinates.**
+
+
+```{r}
+d2 = subset(diamonds, color == "D")
+
+cc = qplot(color, data = d2, fill = cut, position = "fill")
+
+cc2 = cc + coord_polar(theta = "y")
+
+library(gridExtra)
+grid.arrange(cc, cc2, nrow = 1)
+```
+
+# **3.Scale**
+
+> **Color Shape Size**
+
+```{r}
+hd1 <- qplot(displ, hwy, data = mpg, color = class, shape = class, size = class)
+hd1
+```
+
+## Color
+
+
+* **Discrete**
+
+    + nice looking color scheme(palette)       
+    + `scale_color_brewer()`    
+    + `scale_fill_brewer()`   
+    
+    + the exact colors you list (values)    
+    + `scale_color_manual()`    
+    + `scale_fill_manual()`    
+    
+    + hues evenly spaced throughout HCL color space(h, c, l)       
+    + `scale_color_hue()`    
+    + `scale_fill_hue()`    
+
+
+* **Discrete or Continuous**
+
+    + greyscale values
+    + `scale_color_grey()`    
+    + `scale_fill_grey()`    
+
+* **Continuous**
+
+    + gradient between a low color and a high color(low, high)   
+    + `scale_color_gradient()`    
+    + `scale_fill_gradient()`    
+    
+    + gradient with neutral midrange and opposite colored extremes(low, mid, high, midpoint)  
+    + `scale_color_gradient2()`    
+    + `scale_fill_gradient2()` 
+    
+    + gradient that moves through range of colors(colours)      
+    + `scale_color_gradientn()`    
+    + `scale_fill_gradientn()`     
+
+
+
+
+
+### Data: mpg `scale_color_gradient`
+
+```{r}
+hd2 = qplot(displ, hwy, data = mpg, color = cty)
+hd2
+```
+
+```{r}
+hd3 = hd2 + scale_color_gradient(low = "red", high = "yellow")
+hd3
+```
+
+
+### Map data: texas
+
+```{r}
+tx = qplot(long, lat, data = texas, geom = "polygon", group = group, fill = bin)
+tx
+```
+
+#### (1).Brewer
+
+```{r}
+library(RColorBrewer)
+display.brewer.all()
+
+tx + 
+    scale_fill_brewer(palette = "Greens")
+
+tx + 
+    scale_fill_brewer(palette = "OrRd")
+
+tx + 
+    scale_fill_brewer(palette = "Spectral")
+
+tx + 
+    scale_fill_brewer(palette="OrRd")
+
+
+```
+
+#### (2).Manual
+
+```{r}
+tx + 
+    scale_fill_manual(values = c("red", "orange", "yellow", "green", "blue"))
+```
+
+#### (3).Hug
+
+```{r}
+tx + 
+    scale_fill_hue(h = c(150, 300), c = 150, l = 60)
+```
+
+
+## Size
+
+```{r}
+hd4 = qplot(displ, hwy, data = mpg, size = cyl)
+
+hd5 = hd4 + scale_size_area()
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(hd4, hd5, nrow = 1)
+```
+
+## Shape
+
+```{r}
+hd6 = qplot(displ, hwy, data = mpg, shape = fl)
+
+hd7 = hd6 + scale_shape_manual(values = c(0, 15, 1, 16, 3))
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(hd6, hd7, nrow = 2)
+```
+
+
+
+# **4.Themes**
+
+## Help
+
+```
+?theme
+```
+
+[Theme](https://github.com/wch/ggplot2/wiki/New-theme-system)
+
+
+## Sample
+
+```{r}
+tx + 
+    theme_grey()
+tx + 
+    theme_bw()
+tx + 
+    theme(panel.border = element_rect(colour = "black", fill = NA))
+
+```
+
+## ggthemes
+
+```{r}
+library(ggthemes)
+p = qplot(color, data = diamonds, fill = cut, position = "dodge")
+p
+```
+
+```{r}
+p + 
+    theme_excel() + 
+    scale_fill_excel()
+p + 
+    theme_economist() +
+    scale_fill_economist()
+p + 
+    theme_few() + 
+    scale_fill_few()
+p + 
+    theme_solarized() + 
+    scale_fill_solarized()
+p + 
+    theme_stata() + 
+    scale_fill_stata()
+p + 
+    theme_tufte() + 
+    scale_fill_tableau()
+p + 
+    theme_gdocs() + 
+    scale_fill_gdocs()
+p + 
+    theme_wsj() +
+    scale_fill_wsj(palette = "black_green")
+```
+
+# **5.Axis labels**
+
+```{r}
+p = qplot(color, data = diamonds, fill = cut, position = "dodge")
+```
+
+```{r}
+p1 = p + ylab("Price in Dollars ($)")
+```
+
+```{r}
+p2 = p + ylab("")
+```
+
+```{r}
+library(gridExtra)
+grid.arrange(p, p1, p2, nrow = 3)
+```
+
+# **6.Legends**
+
+```{r}
+q = qplot(displ, hwy, data = mpg, color = cty)
+```
+
+```{r}
+q + 
+    theme(legend.position = "left")
+q + 
+    guides(color = "colorbar")
+q + 
+    guides(color = "legend")
+q + 
+    guides(color = "none")
+```
+
+```{r}
+tx + 
+    scale_fill_grey(name = "Legend")
+
+tx + 
+    scale_fill_grey(name = "Legend", labels = c("label 1", "label 2", "label 3","label 4", "label 5"))
+
+tx + 
+    scale_fill_discrete(name = "Legend name")
+```
+
+
+
+
+```{r}
+tx + 
+    scale_fill_brewer(palette = "Blues", name = "Population",
+                      labels = c("0 - 999","1,000 - 9,999","10,000 - 99,999","100,000 - 999,999","1,000,000+")) +
+    xlab("") +
+    ylab("") +
+    theme_bw() +
+    coord_map() +
+    ggtitle("Population of Texas Counties")
+```
+
+
+
+```
+library(ggplot2)
+library(extrafont)
+loadfonts()
+
+p + scale_fill_grey() + 
+    ggtitle("Made with extrafont") + 
+    theme(text = element_text(size=16, family = "Orbitron", colour = "red"))
+
+ggsave("fonttest-orbitron.pdf")
+
+embed_fonts("fonttest-orbitron.pdf")
+```
