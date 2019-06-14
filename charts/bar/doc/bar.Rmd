@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, message = FALSE}
+setwd("/home/wangzhefeng/project/DataVisualiztion/charts/bar/")
 library(tidyverse)
 library(reshape2)
 ```
@@ -48,8 +49,6 @@ ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
     coord_flip()
 ```
 
-
-
 ## 1.2 
 
 ### 1.2.1
@@ -68,7 +67,6 @@ ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
 ```
 
 ### 1.2.2
-
 
 ```{r}
 mydata <- data.frame(Cut = c("Fair", "Good", "Very Good", "Premium", "Ideal"),
@@ -126,7 +124,7 @@ ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
 ### 2.1.1
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv", check_names = FALSE)
+mydata <- read.csv("./data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
@@ -136,7 +134,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 ### 2.1.2
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv", check_names = FALSE)
+mydata <- read.csv("./data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
@@ -234,7 +232,7 @@ ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
 
 ### 4.1.1
 
-```{r}
+```{r, eval = False}
 ggplot(data = mydata, mapping = ase(x = , y = , fill = )) +
     geom_bar(stat = "identity", position = "fill", 
              colour = "black", width = 0.7, size = 0.25)
