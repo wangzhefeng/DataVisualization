@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message = FALSE}
 setwd("/home/wangzhefeng/project/DataVisualiztion/charts/bar/")
+path = getwd()
 library(tidyverse)
 library(reshape2)
 ```
@@ -124,7 +125,7 @@ ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
 ### 2.1.1
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv")
+mydata <- read.csv(path + "/data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
@@ -134,7 +135,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 ### 2.1.2
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv")
+mydata <- read.csv(path + "/data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
@@ -148,7 +149,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 ### 2.2.1
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv", check.names = FALSE)
+mydata <- read.csv(path + "/data/MultiColumn_Data.csv", check.names = FALSE)
 order = sort(mydata$"1996", index.return = TRUE, decreasing = TRUE)
 mydata$Catergory <- factor(mydata$Catergory, levles = mydata$Catergory[order$ix])
 
@@ -161,7 +162,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 
 
 ```{r}
-mydata <- read.csv("./data/MultiColumn_Data.csv", check.names = FALSE)
+mydata <- read.csv(path + "/data/MultiColumn_Data.csv", check.names = FALSE)
 order = sort(mydata$"1996", index.return = TRUE, decreasing = TRUE)
 mydata$Catergory <- factor(mydata$Catergory, levles = mydata$Catergory[order$ix])
 
@@ -178,7 +179,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 ### 3.1.1
 
 ```{r}
-mydata = read.csv("./data/StackedColumn_Data.csv")
+mydata = read.csv(path + "/data/StackedColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
     geom_bar(stat = "identity", position = "stack", 
@@ -188,7 +189,7 @@ ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
 ### 3.1.2
 
 ```{r}
-mydata = read.csv("./data/StackedColumn_Data.csv")
+mydata = read.csv(path + "/data/StackedColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
     geom_bar(stat = "identity", position = "stack", 
@@ -202,7 +203,7 @@ ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
 ### 3.2.1
 
 ```{r}
-mydata = read.csv("./data/StackedColumn_Data.csv")
+mydata = read.csv(path + "/data/StackedColumn_Data.csv")
 order = sort(colSums(mydata[, 2:ncol(mydata)]), index.return = TRUE, decreasing = TRUE)
 mydata = mydata[, c(1, order$ix)]
 mydata$Clarity = factor(mydata$Clarity, levels = mydata$Clarity[c(1:5)])
@@ -215,7 +216,7 @@ ggplot(data = mydata, mapping = aes(x = variable, y = value, fill = Clarity)) +
 ### 3.2.2
 
 ```{r}
-mydata = read.csv("./data/StackedColumn_Data.csv")
+mydata = read.csv(path + "/data/StackedColumn_Data.csv")
 order = sort(colSums(mydata[, 2:ncol(mydata)]), index.return = TRUE, decreasing = TRUE)
 mydata = mydata[, c(1, order$ix)]
 mydata$Clarity = factor(mydata$Clarity, levels = mydata$Clarity[c(1:5)])

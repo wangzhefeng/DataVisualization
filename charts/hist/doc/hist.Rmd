@@ -14,7 +14,7 @@ library(tidyverse)
 ```
 
 ```{r}
-df = read.csv("/home/wangzhefeng/project/DataVisualiztion/charts/hist/data/Hist_Density_Data.csv",
+df = read.csv("/Users/zfwang/project/DataVisualiztion/charts/hist/data/Hist_Density_Data.csv",
               stringsAsFactors = FALSE)
 ```
 
