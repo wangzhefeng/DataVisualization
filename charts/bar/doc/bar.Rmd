@@ -10,11 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, message = FALSE}
-setwd("/home/wangzhefeng/project/DataVisualiztion/charts/bar/")
-path = getwd()
 library(tidyverse)
 library(reshape2)
 ```
+
+
+> * 柱形图用于显示一段时间内的数据变化或显示各项之间的比较情况；
+> * 在柱形图中，类别型或序数型变量映射到横轴的位置，数值型变量映射到矩形的高度；
+
 
 # 1.单数据系列柱形图/条形图
 
@@ -29,8 +32,7 @@ mydata <- data.frame(Cut = c("Fair", "Good", "Very Good", "Premium", "Ideal"),
 ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
     geom_bar(stat = "identity", position = "identity",
              width = 0.8, size = 0.25, 
-             colour = "black", 
-             fill = "#FC4E07", 
+             colour = "black", fill = "#FC4E07", 
              alpha = 1)
 ```
 
@@ -125,7 +127,7 @@ ggplot(data = mydata, mapping = aes(x = Cut, y = Price)) +
 ### 2.1.1
 
 ```{r}
-mydata <- read.csv(path + "/data/MultiColumn_Data.csv")
+mydata <- read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
@@ -135,7 +137,7 @@ ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) 
 ### 2.1.2
 
 ```{r}
-mydata <- read.csv(path + "/data/MultiColumn_Data.csv")
+mydata <- read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/MultiColumn_Data.csv")
 
 ggplot(data = mydata, mapping = aes(x = Catergory, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge", 
