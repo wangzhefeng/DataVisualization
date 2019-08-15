@@ -14,16 +14,11 @@ library(tidyverse)
 library(reshape2)
 ```
 
-
-> * 柱形图用于显示一段时间内的数据变化或显示各项之间的比较情况；
-> * 在柱形图中，类别型或序数型变量映射到横轴的位置，数值型变量映射到矩形的高度；
-
-
 # 1.单数据系列柱形图/条形图
 
 ## 1.1 
 
-### 1.1.1
+### 1.1.1 
 
 ```{r}
 mydata <- data.frame(Cut = c("Fair", "Good", "Very Good", "Premium", "Ideal"),
