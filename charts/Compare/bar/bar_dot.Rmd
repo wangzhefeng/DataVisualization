@@ -1,0 +1,267 @@
+---
+title: "点图"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE}
+library(tidyverse)
+library(reshape2)
+```
+
+# 不等宽柱形图
+
+```{r}
+library(ggplot2)
+mydata = data.frame(Name = paste0("Project", 1:5),
+                    Scale = c(35, 30, 20, 10, 5),
+                    ARPU = c(56, 37, 63, 57, 59))
+# 构造矩形X轴的最小点
+mydata$xmin = 0
+for (i in 2:5) {
+    mydata$xmin[i] = sum(mydata$Scale[1:i-1])
+}
+# 构造矩形X轴的最大点
+for (i in 1:5) {
+    mydata$xmax[i] = sum(mydata$Scale[1:i])
+}
+# 构造数据标签的横坐标
+for (i in 1:5) {
+    mydata$label[i] = sum(mydata$Scale[1:i]) - mydata$Scale[i] / 2
+}
+
+ggplot(data = mydata) +
+    geom_rect(mapping = aes(xmin = xmin, xmax = xmax, 
+                            ymin = 0, ymax = ARPU, 
+                            fill = Name), 
+              colour = "black", size = 0.25) +
+    geom_text(mapping = aes(x = label, y = ARPU + 3, label = ARPU), 
+              size = 4, colour = "black") +
+    geom_text(mapping = aes(x = label, y = -2.5, label = Name), 
+              size = 4, colour = "black")
+```
+
+# 棒棒糖图(lollipop chart)
+
+```{r}
+mydata = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/DotPlots_Data.csv", 
+                  sep = ",", 
+                  na.strings = "NA", 
+                  stringsAsFactors = FALSE)
+mydata$sum = rowSums(mydata[, 2:3])
+order = sort(mydata$sum, index.return = TRUE, decreasing = FALSE)
+mydata$City = factor(mydata$City, levels = mydata$City[order$ix])
+
+ggplot(data = mydata, mapping = aes(x = sum, y = City)) +
+    geom_point(shape = 21, size = 3, colour = "black", fill = "#FC4E07") +
+    geom_segment(mapping = aes(x = 0, xend = sum, 
+                               y = City, yend = City))
+```
+
+# 克利夫兰点图(Cleveland's dot plot)
+
+```{r}
+mydata = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/DotPlots_Data.csv", 
+                  sep = ",", 
+                  na.strings = "NA", 
+                  stringsAsFactors = FALSE)
+mydata$sum = rowSums(mydata[, 2:3])
+order = sort(mydata$sum, index.return = TRUE, decreasing = FALSE)
+mydata$City = factor(mydata$City, levels = mydata$City[order$ix])
+
+ggplot(data = mydata, mapping = aes(x = sum, y = City)) +
+    geom_point(shape = 21, size = 3, colour = "black", fill = "#FC4E07")
+```
+
+
+# 哑铃图(dumbbell plot)
+
+```{r, message = FALSE}
+mydata = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/DotPlots_Data.csv", 
+                  sep = ",", na.strings = "NA", stringsAsFactors = FALSE)
+mydata$City = factor(mydata$City, levels = mydata$City[order(mydata$Female)])
+mydata = melt(mydata, vars = "City")
+
+ggplot(data = mydata, mapping = aes(x = value, y = City, fill = factor(variable))) +
+    geom_point(shape = 21, size = 3, colour = "black") +
+    scale_fill_manual(values = c("#00AFBB", "#FC4E07", "#36BED9")) +
+    geom_line(mapping = aes(group = City)) +
+    theme(legend.position = c(0.85, 0.12))
+```
+
+
+# 坡度图
+
+```{r}
+df = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/Slopecharts_Data1.csv")
+colnames(df) = c("continent", "1952", "1957")
+df$left_label = paste(df$continent, round(df$`1952`), sep = ", ")
+df$right_label = paste(df$continent, round(df$`1957`), sep = ", ")
+df$class = ifelse((df$`1957` - df$`1952`) > 0, "red", "green")
+
+ggplot(data = df) + 
+    geom_segment(mapping = aes(x = 1, xend = 2, y = `1952`, yend = `1957`, colour = class), 
+                 size = 0.75, show.legend = FALSE) +
+    geom_vline(xintercept = 1, linetype = "solid", size = 0.1) +
+    geom_vline(xintercept = 2, linetype = "solid", size = 0.1) +
+    geom_point(mapping = aes(x = 1, y = `1952`), size = 3, shape = 21, fill = "grey80", color = "black") +
+    geom_point(mapping = aes(x = 2, y = `1957`), size = 3, shape = 21, fill = "grey80", color = "black") +
+    scale_color_manual(labels = c("Up", "Down"), values = c("green" = "#FC4E07", "red" = "#A6D854")) +
+    xlim(0.5, 2.5) +
+    geom_text(label = df$left_label, y = df$`1952`, x = rep(1, NROW(df)), hjust = 1.1, size = 3.5) +
+    geom_text(label = df$right_label, y = df$`1957`, x = rep(2, NROW(df)), hjust = -0.1, size = 3.5) +
+    geom_text(label = "1952", x = 1, y = 1.013 * max(df$`1952`, df$`1957`), hjust = 0.5, size = 5) +
+    geom_text(label = "1957", x = 2, y = 1.013 * max(df$`1952`, df$`1957`), hjust = 0.5, size = 5) +
+    theme_void()
+```
+
+
+```{r, message = FALSE, warning = FALSE}
+library(ggalt)
+df = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/Slopecharts_Data2.csv")
+colnames(df) = c("continent", 2007:2013)
+df2 = melt(df, id = "continent")
+df2$value = as.numeric(df2$value)
+df2$variable = as.numeric(df2$variable)
+df2$left_label = paste(df2$continent, round(df2$value), sep = ", ")
+df2$right_label = paste(df2$continent, round(df2$value), sep = ", ")
+df2$left_point = df2$value
+df2$right_point = df2$value
+df2$class = df2$variable
+for (i in 1:nrow(df2)) {
+    if (df2$variable[i] != 1) {
+        df2$left_label[i] = ""
+        df2$left_point[i] = NaN
+    }
+    if (df2$variable[i] != 7) {
+        df2$right_label[i] = ""
+        df2$right_point[i] = NaN
+    }
+    if (df[df$continent == df2$continent[i], 2] > df[df$continent == df2$continent[i], 8]) {
+        df2$class[i] = "green"
+    } else {
+        df2$class[i] = "red"
+    }
+}
+
+ggplot(data = df2) +
+    geom_xspline(mapping = aes(x = variable, y = value, group = continent, colour = class), size = 0.75) +
+    geom_vline(xintercept = 1, linetype = "solid", size = 0.1) +
+    geom_vline(xintercept = 7, linetype = "solid", size = 0.1) +
+    geom_point(mapping = aes(x = variable, y = left_point), 
+               size = 3, shape = 21, fill = "grey80", colour = "black") +
+    geom_point(mapping = aes(x = variable, y = right_point), 
+               size = 3, shape = 21, fill = "grey80", colour = "black") +
+    geom_text(label = df2$left_label, y = df2$value, x = rep(1, NROW(df2)), hjust = 1.1, size = 2.5) +
+    geom_text(label = df2$right_label, y = df2$value, x = rep(7, NROW(df2)), hjust = -0.1, size = 2.5) +
+    geom_text(label = "2007", x = 1, y = 1.02 * max(df2$value), hjust = 0.5, size = 5) +
+    geom_text(label = "2013", x = 7, y = 1.02 * max(df2$value), hjust = 0.5, size = 5) +
+    xlim(-4, 12) +
+    theme_void() +
+    theme(legend.position = "none") +
+    scale_color_manual(labels = c("Up", "Down"), values = c("green"="#FC4E07",  "red"="#A6D854"))
+```
+
+```{r, message = FALSE, warning = FALSE}
+library(ggalt)
+df = read.csv("/Users/zfwang/project/DataVisualiztion/charts/bar/data/Slopecharts_Data2.csv")
+colnames(df) = c("continent", 2007:2013)
+df2 = melt(df, id = "continent")
+df2$value = as.numeric(df2$value)
+df2$years = df2$variable
+df2$variable = as.numeric(df2$variable)
+df2$left_label = paste(df2$continent, round(df2$value), sep = ", ")
+df2$right_label = paste(df2$continent, round(df2$value), sep = ", ")
+df2$left_point = df2$value
+df2$right_point = df2$value
+df2$class = df2$variable
+for (i in 1:nrow(df2)) {
+    if (df2$variable[i] != 1) {
+        df2$left_label[i] = ""
+        #df2$left_point[i] = NaN
+    }
+    if (df2$variable[i] != 7) {
+        df2$right_label[i] = ""
+        #df2$right_point[i] = NaN
+    }
+    if (df[df$continent == df2$continent[i], 2] > df[df$continent == df2$continent[i], 8]) {
+        df2$class[i] = "green"
+    } else {
+        df2$class[i] = "red"
+    }
+}
+
+ggplot(data = df2) +
+    geom_xspline(mapping = aes(x = variable, y = value, group = continent, colour = class), size = 0.75) +
+    geom_vline(xintercept = 1, linetype = "solid", size = 0.1) +
+    geom_vline(xintercept = 7, linetype = "solid", size = 0.1) +
+    geom_point(mapping = aes(x = variable, y = left_point), 
+               size = 1.5, shape = 21, fill = "grey80", colour = "black") +
+    geom_point(mapping = aes(x = variable, y = right_point), 
+               size = 1.5, shape = 21, fill = "grey80", colour = "black") +
+    geom_text(label = df2$left_label, y = df2$value, x = rep(1, NROW(df2)), hjust = 1.1, size = 2.5) +
+    geom_text(label = df2$right_label, y = df2$value, x = rep(7, NROW(df2)), hjust = -0.1, size = 2.5) +
+    geom_text(label = "2007", x = 1, y = 1.02 * max(df2$value), hjust = 0.5, size = 5) +
+    geom_text(label = "2013", x = 7, y = 1.02 * max(df2$value), hjust = 0.5, size = 5) +
+    xlim(-4, 12) +
+    theme_void() +
+    theme(legend.position = "none") +
+    scale_color_manual(labels = c("Up", "Down"), 
+                       values = c("green"="#FC4E07",  "red"="#A6D854"))
+```
+
+
+# 南丁格尔玫瑰图(Nightingale rose chart)
+
+### 单数据系列南丁格尔玫瑰图
+
+```{r, warning=FALSE}
+mydata = data.frame(
+    a = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), 
+    b = c(50, 60, 70, 20, 90, 110, 30)
+)
+myAngle = seq(-20, -340, length.out = 7)
+
+ggplot(data = mydata, mapping = aes(x = a, y = b, fill = factor(b))) +
+    geom_bar(stat = "identity", position = "identity", width = 1, colour = "black", fill = "#F8766D") +
+    geom_text(mapping = aes(label = b, x = a, y = b - 8), colour = "white") +
+    coord_polar(theta = "x", start = 0) +
+    ylim(c(0, 120)) +
+    theme_light() +
+    theme(panel.background = element_blank(),
+          panel.grid.major = element_line(colour = "grey80",size=.25),
+          axis.text.y = element_text(size = 12,colour="black"),
+          axis.line.y = element_line(size=0.25),
+          axis.text.x=element_text(size = 13,colour="black",angle = myAngle))
+```
+
+### 多数据系列南丁格尔玫瑰图
+
+```{r, warning=FALSE} 
+diamonds = cbind(diamonds, Cou = rep(1, nrow(diamonds)))
+sum_clarity1 = aggregate(Cou ~ clarity, diamonds, sum)
+sum_clarity2 = diamonds %>% 
+    select(clarity) %>%
+    group_by(clarity) %>%
+    summarise(Cou = n())
+sort_clarity = sum_clarity2 %>%
+    arrange(desc(Cou))
+diamonds$clarity = factor(diamonds$clarity, levels = sort_clarity$clarity)
+myAngle = seq(-20, -340, length.out = 8)
+
+ggplot(data = diamonds, mapping = aes(x = clarity, fill = color)) +
+    geom_bar(stat = "count", width = 1, colour = "black", size = 0.25) +
+    scale_fill_brewer(palette = "Reds") +
+    guides(fill = guide_legend(reverse = TRUE, title = "Color")) +
+    ylim(c(-2000, 12000)) +
+    theme_light() +
+    coord_polar(theta = "x", start = 0) +
+    theme(panel.background = element_blank(),
+          panel.grid.major = element_line(colour = "grey80",size=.25),
+          axis.text.y = element_text(size = 12,colour="black"),
+          axis.line.y = element_line(size=0.25),
+          axis.text.x=element_text(size = 13,colour="black",angle = myAngle))
+```
