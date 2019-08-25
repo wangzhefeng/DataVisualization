@@ -1,0 +1,131 @@
+---
+title: "relation"
+author: "zfwang"
+date: "8/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1.趋势显示的二维散点图
+
+> * 在二维散点图中，可以通过观察两个变量的数据变化，发现两者的关系与相关性，散点图可以提供三类关键信息：
+>     - 变量之间是否存在数量关联信息
+>     - 如果存在关联趋势，那么其是线性还是非线性的；
+>     - 观察是否存在离群值，从而分析这些离群值对建模分析的影响；
+
+(1) 通过观察散点图上数据点的分布情况，可以推断出变量间的相关性：
+
+* 如果变量之间不存在相关关系，那么在散点图上就会表现为随机分布的离散点的点
+* 如果变量之间存在某种相关性，那么大部分的数据点就会相对密集并以某种趋势呈现；
+
+(2) 数据的相关性主要分为：
+
+* 正相关(两个变量同时增加)
+* 负相关(一个变量值增加另一个变量值下降)
+* 不相关
+* 线性相关
+* 指数相关
+* ...
+
+(3) 分析两个变量是否相关、相关程度如何、以及判断这种相关程度的把握性多大，光靠计算两个变量之间的相关系数还不行，需要通过回归分析进行。但一般的相关分析，一般要求出相关关系以及相关系数的大小来判断自变量和因变量的相关程度：
+
+* 强相关
+* 弱相关
+* 不相关
+
+(4) 参数回归模型
+
+> 参数回归模型假定 $f$ 的形式是已知的
+
+* 线性回归模型 $y=ax+b$
+* 指数回归模型 $y=ae^{bx}$
+* 对数回归模型 $y=ln(x)+b$
+* 幂回归模型 $y=ax^{b}$
+* 多项式回归模型 $y=a_{1}x+a_{2}x^{2}+ \ldots + a_{n}x^{n}$
+
+(5) 非参数回归模型
+
+> 非参数回归模型不采用预定义的形式
+
+数据平滑方法：
+
+* 局部加权回归(Locally Weighted Scatterplot Smoothing, LOWESS, LOESS)
+* 广义可加模型(Generalised Additive Model, GAM)
+* Savizky-Golay
+* 样条(spline)数据平滑
+
+
+
+## 3.气泡图
+
+> 气泡图最基本的使用方法是使用三个值来确定每个数据序列，将两个维度的数据值分别映射为笛卡尔坐标系，每个气泡的面积代表第三个维度的数据
+
+
+```{r}
+library(ggrepel)
+library(ggplot2)
+
+```
+
+
+## 13.桑基图(Sankey Diagram)
+
+```{r, message=FALSE, warning=FALSE}
+library(ggalluvial)
+library(ggplot2)
+data("vaccinations")
+levels(vaccinations$response) = rev(levels(vaccinations$response))
+
+ggplot(data = vaccinations, 
+       mapping = aes(x = survey, 
+                     stratum = response, 
+                     alluvium = subject,
+                     weight = freq,
+                     fill = response, 
+                     label = response)) +
+    geom_flow(alpha = 0.7, color = "darkgray") +
+    geom_stratum(alpha = 1) +
+    geom_text(stat = "stratum", size = 3.5) +
+    theme_classic() +
+    # coord_flip() +
+    theme(legend.position = "none", 
+          axis.text.x = element_text(color = "black", size = 12),
+          axis.title.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.line = element_blank(),
+          axis.ticks = element_blank())
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(ggalluvial)
+library(ggplot2)
+data("vaccinations")
+levels(vaccinations$response) = rev(levels(vaccinations$response))
+
+ggplot(data = vaccinations, 
+       mapping = aes(x = survey, 
+                     stratum = response, 
+                     alluvium = subject,
+                     weight = freq,
+                     fill = response, 
+                     label = response)) +
+    geom_flow(alpha = 0.7, color = "darkgray") +
+    geom_stratum(alpha = 1) +
+    geom_text(stat = "stratum", size = 3.5) +
+    theme_classic() +
+    coord_flip() +
+    theme(legend.position = "none", 
+          axis.text.x = element_blank(),
+          axis.title.x = element_blank(),
+          axis.text.y = element_text(color = "black", size = 12),
+          axis.line = element_blank(),
+          axis.ticks = element_blank())
+```
+
+
+
+
