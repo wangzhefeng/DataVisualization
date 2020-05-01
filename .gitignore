@@ -103,3 +103,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 .Rproj.user
+
+.idea/
+.vscode/
+build/
+.DS_Store
+.ipynb_checkpoint
