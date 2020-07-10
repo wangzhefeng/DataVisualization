@@ -9,4 +9,7 @@ Welcome to Data Visualization's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   clevelands_dot_plot
+   funnel
    
